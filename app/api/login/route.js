@@ -38,7 +38,12 @@ export async function POST(request) {
       );
     }
 
+    
+    console.time("DB-CONNECTION");
+    await prisma.$queryRaw`SELECT 1`;
+        console.timeEnd("DB-CONNECTION");
 
+      console.time("DB-QUERY");   
     const admin = await prisma.admin.findUnique({
       where: {
         email: email
@@ -46,8 +51,7 @@ export async function POST(request) {
           .toLowerCase(),
       },
     });
-
-
+     console.timeEnd("DB-QUERY");
     if (!admin) {
       return Response.json(
         {
@@ -60,14 +64,15 @@ export async function POST(request) {
       );
     }
 
-
+    console.time("BCRYPT");
+    
     const passwordMatch =
       await bcrypt.compare(
         password,
         admin.password
       );
 
-
+    console.timeEnd("BCRYPT");
     if (!passwordMatch) {
       return Response.json(
         {
