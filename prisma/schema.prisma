@@ -1,0 +1,157 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum OfferType {
+    RENT
+    SALE
+}
+
+enum PropertyKind {
+    RESIDENTIAL
+    COMMERCIAL
+    LAND
+    WAREHOUSE
+}
+
+enum PropertyStatus {
+    AVAILABLE
+    SOLD
+    RENTED
+    RESERVED
+}
+
+
+model Agent {
+  id          String     @id @default(cuid())
+  name        String
+  email       String     @unique
+  phone       String
+  facebook    String?
+  instagram   String?
+  avatarUrl   String?
+  bio         String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  properties  Property[]
+
+  @@map("agents")
+}
+
+model City {
+  id          String     @id @default(cuid())
+  name        String     @unique   // e.g. "Nogales, Sonora"
+
+  properties  Property[]
+
+  @@map("cities")
+}
+
+model Amenity {
+  id          String     @id @default(cuid())
+  name        String     @unique   // e.g. "Pool", "Garage", "24h Security"
+
+  properties  PropertyAmenity[]
+
+  @@map("amenities")
+}
+
+// Many-to-many join table (Property <-> Amenity)
+model PropertyAmenity {
+  propertyId  String
+  amenityId   String
+
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  amenity     Amenity  @relation(fields: [amenityId], references: [id], onDelete: Cascade)
+
+  @@id([propertyId, amenityId])
+  @@map("property_amenities")
+}
+
+model Property {
+  id            String         @id @default(cuid())
+  title         String
+  slug          String         @unique
+  description   String?
+
+  // --- Filters ---
+  offerType     OfferType                     // Rent / Sale
+  kind          PropertyKind                  // Residential / Commercial / Land / Warehouse
+  status        PropertyStatus @default(AVAILABLE)
+
+  price         Decimal        @db.Decimal(12, 2)
+  currency      String         @default("MXN")
+
+  bedrooms      Int?
+  bathrooms     Decimal?       @db.Decimal(3, 1)   // handles 2.5 baths
+  sizeM2        Decimal?       @db.Decimal(10, 2)  // property size in m²
+  parkingSpots  Int?
+
+  address       String?
+  latitude      Decimal?       @db.Decimal(9, 6)
+  longitude     Decimal?       @db.Decimal(9, 6)
+
+  cityId        String?
+  city          City?          @relation(fields: [cityId], references: [id])
+
+  agentId       String
+  agent         Agent          @relation(fields: [agentId], references: [id])
+
+  images        PropertyImage[]
+  amenities     PropertyAmenity[]
+
+  createdAt     DateTime       @default(now())   // used for "posted X days ago"
+  updatedAt     DateTime       @updatedAt
+
+  @@index([offerType])
+  @@index([kind])
+  @@index([price])
+  @@index([bedrooms])
+  @@index([cityId])
+  @@map("properties")
+}
+
+model PropertyImage {
+  id          String     @id @default(cuid())
+  url         String
+  publicId    String
+  isCover     Boolean    @default(false)
+  order       Int        @default(0)
+
+  propertyId  String
+  property    Property   @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@map("property_images")
+}
+
+model Inquiry {
+  id          String     @id @default(cuid())
+  name        String
+  email       String
+  phone       String?
+  message     String
+
+
+  createdAt   DateTime   @default(now())
+
+  @@map("inquiries")
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+
+  @@map("admins")
+}
+
+
+
+
