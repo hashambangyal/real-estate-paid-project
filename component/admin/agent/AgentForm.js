@@ -1,84 +1,91 @@
-import React, { useState, useRef } from 'react';
-import { ArrowLeft, Camera, Upload, X } from 'lucide-react';
+import React, { useState, useRef } from "react";
+import { ArrowLeft, Camera, Upload, X } from "lucide-react";
 
-export default function AgentForm({ 
-  mode = 'new', // 'new' | 'edit'
-  initialData = null, 
-  onSave, 
-  onCancel 
+export default function AgentForm({
+  mode = "new", // 'new' | 'edit'
+  initialData = null,
+  onSave,
+  onCancel,
+  isSubmitting = false,
 }) {
-  const isEdit = mode === 'edit';
+  const isEdit = mode === "edit";
   const fileInputRef = useRef(null);
 
-  const [formData, setFormData] = useState({
-    name: initialData?.name || '',
-    email: initialData?.email || '',
-    phone: initialData?.phone || '',
-    facebook: initialData?.facebook || '',
-    instagram: initialData?.instagram || '',
-    bio: initialData?.bio || '',
-    image: initialData?.image || '',
-    role: initialData?.role || 'Real Estate Agent',
-    status: initialData?.status || 'Active',
-    propertiesCount: initialData?.propertiesCount || 0
-  });
 
-  const [imagePreview, setImagePreview] = useState(formData.image);
+  const [formData, setFormData] = useState({
+    name: initialData?.name || "",
+    email: initialData?.email || "",
+    phone: initialData?.phone || "",
+    facebook: initialData?.facebook || "",
+    instagram: initialData?.instagram || "",
+    bio: initialData?.bio || "",
+    role: initialData?.role || "Real Estate Agent",
+    status: initialData?.status || "Active",
+    propertiesCount: initialData?.propertiesCount || 0,
+  });
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(initialData?.avatarUrl || '');
   const [errors, setErrors] = useState({});
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert('File size exceeds 5MB limit.');
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-        setFormData(prev => ({ ...prev, image: reader.result }));
-      };
-      reader.readAsDataURL(file);
+ const handleImageUpload = (e) => {
+  const file = e.target.files?.[0];
+  if (file) {
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File size exceeds 5MB limit.');
+      return;
     }
-  };
+    setImageFile(file); // actual File — ye upload ke liye jayega
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result); // ye sirf preview ke liye
+    };
+    reader.readAsDataURL(file);
+  }
+};
 
   const validate = () => {
     const newErrors = {};
-    if (!formData.name.trim()) newErrors.name = 'Full name is required';
+    if (!formData.name.trim()) newErrors.name = "Full name is required";
     if (!formData.email.trim()) {
-      newErrors.email = 'Email address is required';
+      newErrors.email = "Email address is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
+      newErrors.email = "Please enter a valid email address";
     }
-    if (!formData.phone.trim()) newErrors.phone = 'Phone number is required';
+    if (!formData.phone.trim()) newErrors.phone = "Phone number is required";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!validate()) return;
+ const handleSubmit = (e) => {
+  e.preventDefault();
+  if (!validate()) return;
 
-    // Use placeholder avatar if none uploaded
-    const finalData = {
-      ...formData,
-      image: imagePreview || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250'
-    };
+  const payload = new FormData();
+  payload.append('name', formData.name);
+  payload.append('email', formData.email);
+  payload.append('phone', formData.phone);
+  payload.append('facebook', formData.facebook || '');
+  payload.append('instagram', formData.instagram || '');
+  payload.append('bio', formData.bio || '');
 
-    onSave(finalData);
-  };
+  if (imageFile) {
+    payload.append('image', imageFile);
+  }
+
+  onSave(payload);
+};
 
   return (
     <div className="p-6 lg:p-8 max-w-5xl mx-auto font-sans space-y-6">
-      
       {/* Back button */}
       <div>
         <button
@@ -94,24 +101,21 @@ export default function AgentForm({
       {/* Page Title & Subtitle */}
       <div>
         <h1 className="text-2xl lg:text-[28px] font-bold text-[#1A1D20] tracking-tight">
-          {isEdit ? 'Update Agent' : 'Add New Agent'}
+          {isEdit ? "Update Agent" : "Add New Agent"}
         </h1>
         <p className="text-xs sm:text-sm text-[#718096] mt-0.5">
-          {isEdit 
-            ? 'Edit the agent information.' 
-            : 'Fill in the details to create a new agent.'}
+          {isEdit
+            ? "Edit the agent information."
+            : "Fill in the details to create a new agent."}
         </p>
       </div>
 
       {/* Form Card */}
       <div className="bg-white rounded-2xl border border-gray-100 p-6 sm:p-8 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
         <form onSubmit={handleSubmit}>
-          
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
-            
             {/* Left Column: Profile Picture Upload / Change */}
             <div className="md:col-span-4 flex flex-col items-center justify-center text-center">
-              
               <input
                 ref={fileInputRef}
                 type="file"
@@ -126,7 +130,7 @@ export default function AgentForm({
                   <div className="relative group">
                     <img
                       src={imagePreview}
-                      alt={formData.name || 'Agent'}
+                      alt={formData.name || "Agent"}
                       className="w-28 h-28 rounded-full object-cover border-2 border-gray-100 shadow-sm"
                     />
                     <button
@@ -159,12 +163,14 @@ export default function AgentForm({
                 >
                   {imagePreview ? (
                     <div className="relative w-full h-full flex flex-col items-center justify-center">
-                      <img 
-                        src={imagePreview} 
-                        alt="Preview" 
-                        className="w-24 h-24 rounded-full object-cover mb-2 border border-gray-200" 
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="w-24 h-24 rounded-full object-cover mb-2 border border-gray-200"
                       />
-                      <span className="text-xs font-medium text-[#0B5A46]">Replace photo</span>
+                      <span className="text-xs font-medium text-[#0B5A46]">
+                        Replace photo
+                      </span>
                     </div>
                   ) : (
                     <>
@@ -181,12 +187,10 @@ export default function AgentForm({
                   )}
                 </div>
               )}
-
             </div>
 
             {/* Right Column: Input Fields */}
             <div className="md:col-span-8 space-y-4">
-              
               {/* Full Name */}
               <div className="space-y-1.5">
                 <label className="block text-xs font-medium text-gray-700">
@@ -199,19 +203,20 @@ export default function AgentForm({
                   onChange={handleInputChange}
                   placeholder="Enter agent name"
                   className={`w-full h-10 px-3.5 bg-white border rounded-xl text-xs text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 transition-all ${
-                    errors.name 
-                      ? 'border-red-400 focus:border-red-500 focus:ring-red-500' 
-                      : 'border-gray-200 focus:border-[#0B5A46] focus:ring-[#0B5A46]'
+                    errors.name
+                      ? "border-red-400 focus:border-red-500 focus:ring-red-500"
+                      : "border-gray-200 focus:border-[#0B5A46] focus:ring-[#0B5A46]"
                   }`}
                 />
                 {errors.name && (
-                  <span className="text-[11px] text-red-500">{errors.name}</span>
+                  <span className="text-[11px] text-red-500">
+                    {errors.name}
+                  </span>
                 )}
               </div>
 
               {/* Email and Phone */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                
                 <div className="space-y-1.5">
                   <label className="block text-xs font-medium text-gray-700">
                     Email <span className="text-red-500">*</span>
@@ -223,13 +228,15 @@ export default function AgentForm({
                     onChange={handleInputChange}
                     placeholder="agent@example.com"
                     className={`w-full h-10 px-3.5 bg-white border rounded-xl text-xs text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 transition-all ${
-                      errors.email 
-                        ? 'border-red-400 focus:border-red-500 focus:ring-red-500' 
-                        : 'border-gray-200 focus:border-[#0B5A46] focus:ring-[#0B5A46]'
+                      errors.email
+                        ? "border-red-400 focus:border-red-500 focus:ring-red-500"
+                        : "border-gray-200 focus:border-[#0B5A46] focus:ring-[#0B5A46]"
                     }`}
                   />
                   {errors.email && (
-                    <span className="text-[11px] text-red-500">{errors.email}</span>
+                    <span className="text-[11px] text-red-500">
+                      {errors.email}
+                    </span>
                   )}
                 </div>
 
@@ -244,21 +251,21 @@ export default function AgentForm({
                     onChange={handleInputChange}
                     placeholder="+92 300 1234567"
                     className={`w-full h-10 px-3.5 bg-white border rounded-xl text-xs text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 transition-all ${
-                      errors.phone 
-                        ? 'border-red-400 focus:border-red-500 focus:ring-red-500' 
-                        : 'border-gray-200 focus:border-[#0B5A46] focus:ring-[#0B5A46]'
+                      errors.phone
+                        ? "border-red-400 focus:border-red-500 focus:ring-red-500"
+                        : "border-gray-200 focus:border-[#0B5A46] focus:ring-[#0B5A46]"
                     }`}
                   />
                   {errors.phone && (
-                    <span className="text-[11px] text-red-500">{errors.phone}</span>
+                    <span className="text-[11px] text-red-500">
+                      {errors.phone}
+                    </span>
                   )}
                 </div>
-
               </div>
 
               {/* Facebook and Instagram */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                
                 <div className="space-y-1.5">
                   <label className="block text-xs font-medium text-gray-700">
                     Facebook
@@ -286,7 +293,6 @@ export default function AgentForm({
                     className="w-full h-10 px-3.5 bg-white border border-gray-200 rounded-xl text-xs text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0B5A46] focus:ring-1 focus:ring-[#0B5A46] transition-all"
                   />
                 </div>
-
               </div>
 
               {/* Bio */}
@@ -303,9 +309,7 @@ export default function AgentForm({
                   className="w-full p-3.5 bg-white border border-gray-200 rounded-xl text-xs text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0B5A46] focus:ring-1 focus:ring-[#0B5A46] transition-all resize-none"
                 />
               </div>
-
             </div>
-
           </div>
 
           {/* Form Actions (Cancel / Submit) */}
@@ -313,21 +317,28 @@ export default function AgentForm({
             <button
               type="button"
               onClick={onCancel}
+              disabled={isSubmitting}
               className="px-4 py-2 border border-gray-200 text-gray-700 hover:bg-gray-50 rounded-xl text-xs font-medium transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
+              disabled={isSubmitting}
               className="px-5 py-2.5 bg-[#0B5A46] hover:bg-[#084A39] text-white rounded-xl text-xs font-medium shadow-sm transition-colors cursor-pointer"
             >
-              {isEdit ? 'Update Agent' : 'Create Agent'}
+              {isSubmitting ? (
+                <>
+                  <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span>{isEdit ? "Updating..." : "Adding..."}</span>
+                </>
+              ) : (
+                <span>{isEdit ? "Update Agent" : "Create Agent"}</span>
+              )}
             </button>
           </div>
-
         </form>
       </div>
-
     </div>
   );
 }

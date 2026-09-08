@@ -99,8 +99,8 @@ model Property {
   cityId        String?
   city          City?          @relation(fields: [cityId], references: [id])
 
-  agentId       String
-  agent         Agent          @relation(fields: [agentId], references: [id])
+  agentId       String?
+  agent         Agent?          @relation(fields: [agentId], references: [id], onDelete: SetNull)
 
   images        PropertyImage[]
   amenities     PropertyAmenity[]

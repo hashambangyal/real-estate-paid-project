@@ -44,11 +44,14 @@ export async function GET(request) {
         searchParams.get("maxBedrooms") ||
         undefined,
 
-      page:
-        searchParams.get("page") || 1,
+      page: searchParams.get("page")
+        ? parseInt(searchParams.get("page"), 10)
+        : 1,
 
-      limit:
-        searchParams.get("limit") || 12,
+      limit: searchParams.get("limit")
+        ? parseInt(searchParams.get("limit"), 10)
+        : 12,
+
 
       sortBy:
         searchParams.get("sortBy") ||

@@ -109,7 +109,7 @@ export async function getProperties({
   },
 
   skip,
-  take: limit,
+  take: pageSize,
 });
 
 const total = await prisma.property.count({
@@ -119,12 +119,13 @@ const total = await prisma.property.count({
 return {
   data: properties,
   pagination: {
-    page,
-    limit,
+    page: pageNumber,
+    limit: pageSize,
     total,
-    totalPages: Math.ceil(total / limit),
+    totalPages: Math.ceil(total / pageSize),
   },
 };
+
 }
 
 /**

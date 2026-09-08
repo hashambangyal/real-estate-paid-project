@@ -55,7 +55,7 @@ export default async function AdminLayout({
         </div>
 
       </aside> */}
-       < Sidebar/>
+       {/* < Sidebar/> */}
 
       {/* Page Content */}
       <main className="flex-1">

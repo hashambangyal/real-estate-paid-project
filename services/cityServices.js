@@ -19,12 +19,41 @@ export async function createCity(data){
 
 
 export async function getCities() {
-    return await prisma.city.findMany({
+    const cities = await prisma.city.findMany({
+        include: {
+            properties: {
+                select: {
+                    id: true,
+                    status: true,
+                    images: {
+                        take: 1,
+                        select: { url: true },
+                    },
+                },
+            },
+        },
         orderBy: {
             name: 'asc',
         },
     });
+
+    return cities.map((city) => {
+        const properties = city.properties || [];
+        const totalCount = properties.length;
+        const availableCount = properties.filter((p) => p.status === 'AVAILABLE').length;
+        const coverImage = properties.find((p) => p.images && p.images.length > 0)?.images[0]?.url || null;
+
+        return {
+            id: city.id,
+            name: city.name,
+            propertiesCount: totalCount,
+            availableCount: availableCount,
+            totalListings: totalCount,
+            coverImage: coverImage,
+        };
+    });
 }
+
 
 export async function getCityById(id) {
     if( !id){

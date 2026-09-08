@@ -1,9 +1,7 @@
-import React from 'react'
+'use client';
 
-const page = () => {
-  return (
-    <div>city page</div>
-  )
-}
+import CitiesContainer from '@/component/admin/city/CitiesContainer';
 
-export default page
+export default function Page() {
+  return <CitiesContainer />;
+}

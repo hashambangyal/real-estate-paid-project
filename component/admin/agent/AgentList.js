@@ -1,53 +1,57 @@
-import React, { useState } from 'react';
-import { 
-  Search, 
-  Filter, 
-  Plus, 
-  Users, 
-  Building2, 
-  UserCheck, 
-  Mail, 
-  Phone, 
-  Home, 
-  MoreVertical, 
+import React, { useState } from "react";
+import {
+  Search,
+  Filter,
+  Plus,
+  Users,
+  Building2,
+  UserCheck,
+  Mail,
+  Phone,
+  Home,
+  MoreVertical,
   Edit2,
   Trash2,
   Eye,
   CheckCircle,
-  ExternalLink
-} from 'lucide-react';
+  ExternalLink,
+} from "lucide-react";
 
-export default function AgentList({ 
-  agents, 
-  onAddAgent, 
-  onEditAgent, 
+export default function AgentList({
+  agents,
+  onAddAgent,
+  onEditAgent,
   onViewProfile,
-  onDeleteAgent 
+  onDeleteAgent,
 }) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('All');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("All");
   const [activeMenuId, setActiveMenuId] = useState(null);
 
   // Filter agents based on search & status
-  const filteredAgents = agents.filter(agent => {
-    const matchesSearch = 
+  const filteredAgents = agents.filter((agent) => {
+    const matchesSearch =
       agent.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       agent.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       agent.phone.includes(searchTerm);
 
-    if (filterStatus === 'Active') return matchesSearch && agent.status === 'Active';
-    if (filterStatus === 'WithProperties') return matchesSearch && agent.propertiesCount > 0;
+    if (filterStatus === "Active")
+      return matchesSearch && agent.status === "Active";
+    if (filterStatus === "WithProperties")
+      return matchesSearch && agent.propertiesCount > 0;
     return matchesSearch;
   });
 
   // Calculate statistics
   const totalAgents = agents.length;
-  const assignedProperties = agents.reduce((acc, a) => acc + (a.propertiesCount || 0), 0);
-  const activeAgents = agents.filter(a => a.status === 'Active').length;
+  const assignedProperties = agents.reduce(
+    (acc, a) => acc + (a.propertiesCount || 0),
+    0,
+  );
+  const activeAgents = agents.filter((a) => a.status === "Active").length;
 
   return (
     <div className="p-6 lg:p-8 space-y-7 max-w-7xl mx-auto font-sans">
-      
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -70,7 +74,6 @@ export default function AgentList({
 
       {/* Search and Filter Toolbar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3.5">
-        
         {/* Search input */}
         <div className="relative flex-1 max-w-md">
           <input
@@ -98,12 +101,10 @@ export default function AgentList({
             <Filter className="w-3.5 h-3.5 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
         </div>
-
       </div>
 
       {/* 3 Summary Statistics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        
         {/* Card 1: Total Agents */}
         <div className="bg-white p-4.5 rounded-2xl border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.03)] flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center text-gray-600 border border-gray-100/80">
@@ -148,16 +149,18 @@ export default function AgentList({
             </span>
           </div>
         </div>
-
       </div>
 
       {/* Agents Cards Grid */}
       {filteredAgents.length === 0 ? (
         <div className="bg-white rounded-2xl border border-gray-200/80 p-12 text-center">
           <Users className="w-12 h-12 text-gray-300 mx-auto mb-3 stroke-[1.5]" />
-          <h3 className="text-base font-semibold text-gray-800">No agents found</h3>
+          <h3 className="text-base font-semibold text-gray-800">
+            No agents found
+          </h3>
           <p className="text-xs text-gray-500 mt-1 max-w-sm mx-auto">
-            No agents match your current search query or filter. Try a different keyword or add a new agent.
+            No agents match your current search query or filter. Try a different
+            keyword or add a new agent.
           </p>
           <button
             onClick={onAddAgent}
@@ -175,21 +178,26 @@ export default function AgentList({
               className="bg-white rounded-2xl border border-gray-100 p-5 shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.05)] transition-all flex flex-col justify-between relative group"
             >
               <div>
-                
                 {/* Header: Avatar, Name, Role & Options Menu */}
                 <div className="flex items-start justify-between gap-3 mb-4">
                   <div className="flex items-center gap-3">
                     <img
-                      src={agent.image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200'}
+                      src={
+                        agent.avatarUrl ||
+                        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200"
+                      }
                       alt={agent.name}
                       className="w-11 h-11 rounded-full object-cover border border-gray-100 shadow-2xs shrink-0"
                     />
                     <div>
-                      <h2 className="text-[15px] font-bold text-[#1A1D20] leading-snug hover:text-[#0B5A46] transition-colors cursor-pointer" onClick={() => onViewProfile(agent)}>
+                      <h2
+                        className="text-[15px] font-bold text-[#1A1D20] leading-snug hover:text-[#0B5A46] transition-colors cursor-pointer"
+                        onClick={() => onViewProfile(agent)}
+                      >
                         {agent.name}
                       </h2>
                       <span className="text-[11.5px] text-[#8C95A6] font-normal block leading-tight">
-                        {agent.role || 'Real Estate Agent'}
+                        {agent.role || "Real Estate Agent"}
                       </span>
                     </div>
                   </div>
@@ -197,7 +205,11 @@ export default function AgentList({
                   {/* 3 dots menu dropdown */}
                   <div className="relative">
                     <button
-                      onClick={() => setActiveMenuId(activeMenuId === agent.id ? null : agent.id)}
+                      onClick={() =>
+                        setActiveMenuId(
+                          activeMenuId === agent.id ? null : agent.id,
+                        )
+                      }
                       className="p-1 text-gray-400 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
                       aria-label="Agent options"
                     >
@@ -259,7 +271,10 @@ export default function AgentList({
                 <div className="flex items-center justify-between pt-3 border-t border-gray-50 text-xs text-gray-600 mb-5">
                   <div className="flex items-center gap-2">
                     <Home className="w-3.5 h-3.5 text-gray-400" />
-                    <span className="font-medium text-gray-700">{agent.propertiesCount || 0} Properties</span>
+                    <span className="font-medium text-gray-700">
+                      {agent.properties?.length ?? agent.propertiesCount ?? 0}{" "}
+                      Properties
+                    </span>
                   </div>
 
                   {/* Social icons */}
@@ -272,8 +287,11 @@ export default function AgentList({
                         className="text-[#1877F2] hover:opacity-80 transition-opacity"
                         title="Facebook"
                       >
-                        <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        <svg
+                          className="w-4 h-4 fill-current"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                         </svg>
                       </a>
                     )}
@@ -285,14 +303,16 @@ export default function AgentList({
                         className="text-[#E4405F] hover:opacity-80 transition-opacity"
                         title="Instagram"
                       >
-                        <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                        <svg
+                          className="w-4 h-4 fill-current"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
                         </svg>
                       </a>
                     )}
                   </div>
                 </div>
-
               </div>
 
               {/* Bottom Buttons: View Profile & Edit */}
@@ -313,12 +333,10 @@ export default function AgentList({
                   <span>Edit</span>
                 </button>
               </div>
-
             </div>
           ))}
         </div>
       )}
-
     </div>
   );
 }

@@ -10,7 +10,8 @@ import AgentProfile from './AgentProfile';
 
 export default function AgentsContainer() {
   const router = useRouter();
-
+const [isSubmitting, setIsSubmitting] = useState(false);
+const [submitAction, setSubmitAction] = useState(''); // 'creating' | 'updating' | 'deleting'
   const [agents, setAgents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -26,6 +27,32 @@ export default function AgentsContainer() {
   };
 
   // ---- Fetch agents from real API ----
+  // ---- Fetch agents on Mount ----
+  useEffect(() => {
+    let ignore = false;
+    async function loadAgents() {
+      try {
+        const res = await fetch('/api/agent');
+        if (!res.ok) throw new Error('Failed to fetch agents');
+        const data = await res.json();
+        if (!ignore) {
+          setAgents(data);
+          setIsLoading(false);
+        }
+      } catch (err) {
+        if (!ignore) {
+          console.error(err);
+          setError('Agents load nahi ho sake. Please refresh karein.');
+          setIsLoading(false);
+        }
+      }
+    }
+    loadAgents();
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
   const fetchAgents = useCallback(async () => {
     setIsLoading(true);
     setError('');
@@ -42,100 +69,110 @@ export default function AgentsContainer() {
     }
   }, []);
 
-  useEffect(() => {
-    fetchAgents();
-  }, [fetchAgents]);
 
   // ---- Add New Agent ----
-  const handleAddAgent = async (newAgentData) => {
-    try {
-      const res = await fetch('/api/agent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newAgentData),
-      });
+ const handleAddAgent = async (formDataPayload) => {
+  setIsSubmitting(true);
+  setSubmitAction('creating');
+  try {
+    const res = await fetch('/api/agent', {
+      method: 'POST',
+      body: formDataPayload, // Content-Type header set NA karein — browser khud multipart boundary set karega
+    });
 
-      if (res.status === 401) {
-        showToast('Unauthorized: Aap admin nahi hain.');
-        return;
-      }
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || 'Failed to create agent');
-      }
-
-      const newAgent = await res.json();
-      setAgents((prev) => [newAgent, ...prev]);
-      setCurrentView('list');
-      showToast(`Agent "${newAgent.name}" created successfully!`);
-    } catch (err) {
-      console.error(err);
-      showToast(err.message || 'Agent create nahi ho saka.');
+    if (res.status === 401) {
+      showToast('Unauthorized: Aap admin nahi hain.', 'error');
+      return;
     }
-  };
-
-  // ---- Update Agent ----
-  const handleUpdateAgent = async (updatedData) => {
-    try {
-      const res = await fetch(`/api/agent/${selectedAgent.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedData),
-      });
-
-      if (res.status === 401) {
-        showToast('Unauthorized: Aap admin nahi hain.');
-        return;
-      }
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || 'Failed to update agent');
-      }
-
-      const updatedAgent = await res.json();
-      setAgents((prev) =>
-        prev.map((a) => (a.id === updatedAgent.id ? updatedAgent : a))
-      );
-      setCurrentView('list');
-      showToast(`Agent "${updatedAgent.name}" updated successfully!`);
-    } catch (err) {
-      console.error(err);
-      showToast(err.message || 'Agent update nahi ho saka.');
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error || 'Failed to create agent');
     }
-  };
+
+    const newAgent = await res.json();
+    setAgents((prev) => [newAgent, ...prev]);
+    setCurrentView('list');
+    showToast(`Agent "${newAgent.name}" created successfully!`);
+  } catch (err) {
+    console.error(err);
+    showToast(err.message || 'Agent create nahi ho saka.', 'error');
+  } finally {
+    setIsSubmitting(false);
+    setSubmitAction('');
+  }
+};
+
+const handleUpdateAgent = async (formDataPayload) => {
+  setIsSubmitting(true);
+  setSubmitAction('updating');
+  try {
+    const res = await fetch(`/api/agent/${selectedAgent.id}`, {
+      method: 'PATCH',
+      body: formDataPayload,
+    });
+
+    if (res.status === 401) {
+      showToast('Unauthorized: Aap admin nahi hain.', 'error');
+      return;
+    }
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error || 'Failed to update agent');
+    }
+
+    const updatedAgent = await res.json();
+    setAgents((prev) =>
+      prev.map((a) => (a.id === updatedAgent.id ? updatedAgent : a))
+    );
+    setCurrentView('list');
+    showToast(`Agent "${updatedAgent.name}" updated successfully!`);
+  } catch (err) {
+    console.error(err);
+    showToast(err.message || 'Agent update nahi ho saka.', 'error');
+  } finally {
+    setIsSubmitting(false);
+    setSubmitAction('');
+  }
+};
+
+ 
 
   // ---- Delete Agent ----
   const handleDeleteAgent = async (agentId) => {
-    const target = agents.find((a) => a.id === agentId);
-    if (!window.confirm(`Are you sure you want to delete agent "${target?.name}"?`)) {
+  const target = agents.find((a) => a.id === agentId);
+  if (!window.confirm(`Are you sure you want to delete agent "${target?.name}"?`)) {
+    return;
+  }
+
+  setIsSubmitting(true);
+  setSubmitAction('deleting');
+  try {
+    const res = await fetch(`/api/agent/${agentId}`, {
+      method: 'DELETE',
+    });
+
+    if (res.status === 401) {
+      showToast('Unauthorized: Aap admin nahi hain.', 'error');
       return;
     }
-
-    try {
-      const res = await fetch(`/api/agent/${agentId}`, {
-        method: 'DELETE',
-      });
-
-      if (res.status === 401) {
-        showToast('Unauthorized: Aap admin nahi hain.');
-        return;
-      }
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || 'Failed to delete agent');
-      }
-
-      setAgents((prev) => prev.filter((a) => a.id !== agentId));
-      // agar delete profile view se hua to list par wapas bhej dein
-      if (currentView === 'view' && selectedAgent?.id === agentId) {
-        setCurrentView('list');
-      }
-      showToast('Agent deleted successfully.');
-    } catch (err) {
-      console.error(err);
-      showToast(err.message || 'Agent delete nahi ho saka.');
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error || 'Failed to delete agent');
     }
-  };
+
+    setAgents((prev) => prev.filter((a) => a.id !== agentId));
+    if (currentView === 'view' && selectedAgent?.id === agentId) {
+      setCurrentView('list');
+    }
+    showToast('Agent deleted successfully.');
+  } catch (err) {
+    console.error(err);
+    showToast(err.message || 'Agent delete nahi ho saka.', 'error');
+  } finally {
+    setIsSubmitting(false);
+    setSubmitAction('');
+  }
+};
 
   const handleSidebarSelect = (itemName) => {
     setMobileMenuOpen(false);
@@ -155,7 +192,12 @@ export default function AgentsContainer() {
   return (
     <div className="flex h-screen w-full bg-[#F5F7FA] overflow-hidden font-sans">
 
-   
+       <div className="hidden lg:block h-full shrink-0">
+        <Sidebar 
+          activeItem="Agents"
+          onItemSelect={handleSidebarSelect}
+        />
+      </div>
 
       {/* Mobile Drawer Backdrop */}
       {mobileMenuOpen && (
@@ -248,6 +290,8 @@ export default function AgentsContainer() {
                 mode="new"
                 onSave={handleAddAgent}
                 onCancel={() => setCurrentView('list')}
+                isSubmitting={isSubmitting}
+
               />
             )}
 
@@ -257,6 +301,7 @@ export default function AgentsContainer() {
                 initialData={selectedAgent}
                 onSave={handleUpdateAgent}
                 onCancel={() => setCurrentView('list')}
+                isSubmitting={isSubmitting}
               />
             )}
 
