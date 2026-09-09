@@ -1,9 +1,7 @@
-import React from 'react'
+'use client';
 
-const dashboard = () => {
-  return (
-    <div>dashboard page</div>
-  )
-}
+import DashboardContainer from '@/component/admin/dashboard/DashboardContainer';
 
-export default dashboard
+export default function Page() {
+  return <DashboardContainer />;
+}
