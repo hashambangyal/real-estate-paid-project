@@ -19,8 +19,11 @@ export async function getProperties({
   limit = 12,
   sortBy = "createdAt",
   sortOrder = "desc",
+  search,
+  missingFilter,
 } = {}) {
   const where = {};
+  const andConditions = [];
 
   // Filters
   if (offerType) {
@@ -65,6 +68,42 @@ export async function getProperties({
     }
   }
 
+  // Search filter (title, address, description)
+  if (search && search.trim()) {
+    const query = search.trim();
+    andConditions.push({
+      OR: [
+        { title: { contains: query, mode: "insensitive" } },
+        { address: { contains: query, mode: "insensitive" } },
+        { description: { contains: query, mode: "insensitive" } },
+      ],
+    });
+  }
+
+  // Missing data filter
+  if (missingFilter === "no_images") {
+    andConditions.push({ images: { none: {} } });
+  } else if (missingFilter === "no_agent") {
+    andConditions.push({ agentId: null });
+  } else if (missingFilter === "no_city") {
+    andConditions.push({ cityId: null });
+  } else if (missingFilter === "incomplete") {
+    andConditions.push({
+      OR: [
+        { description: null },
+        { address: null },
+        { sizeM2: null },
+        { images: { none: {} } },
+        { agentId: null },
+        { cityId: null },
+      ],
+    });
+  }
+
+  if (andConditions.length > 0) {
+    where.AND = andConditions;
+  }
+
   // Pagination
   const pageNumber = Math.max(1, Number(page));
   const pageSize = Math.min(50, Math.max(1, Number(limit)));
@@ -86,46 +125,201 @@ export async function getProperties({
   const finalSortOrder = sortOrder === "asc" ? "asc" : "desc";
 
   // Fetch properties + total count together
- const properties = await prisma.property.findMany({
-  where,
+  const properties = await prisma.property.findMany({
+    where,
 
-  include: {
-    city: true,
-    agent: true,
-    images: {
-      orderBy: {
-        order: "asc",
+    include: {
+      city: true,
+      agent: true,
+      images: {
+        orderBy: {
+          order: "asc",
+        },
+      },
+      amenities: {
+        include: {
+          amenity: true,
+        },
       },
     },
-    amenities: {
-      include: {
-        amenity: true,
+
+    orderBy: {
+      [finalSortBy]: finalSortOrder,
+    },
+
+    skip,
+    take: pageSize,
+  });
+
+  const total = await prisma.property.count({
+    where,
+  });
+
+  return {
+    data: properties,
+    pagination: {
+      page: pageNumber,
+      limit: pageSize,
+      total,
+      totalPages: Math.ceil(total / pageSize),
+    },
+  };
+}
+
+/**
+ * Get aggregated statistics for the Properties dashboard
+ */
+export async function getPropertyStats({ timeframe = "7d" } = {}) {
+  const now = new Date();
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
+
+  const [
+    totalProperties,
+    propertiesLast30,
+    propertiesPrev30,
+    withImagesCount,
+    withAgentCount,
+    withCityCount,
+    noImagesCount,
+    noAgentCount,
+    noCityCount,
+    incompleteCount,
+    kindGroups,
+  ] = await Promise.all([
+    prisma.property.count(),
+    prisma.property.count({ where: { createdAt: { gte: thirtyDaysAgo } } }),
+    prisma.property.count({
+      where: { createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo } },
+    }),
+    prisma.property.count({ where: { images: { some: {} } } }),
+    prisma.property.count({ where: { agentId: { not: null } } }),
+    prisma.property.count({ where: { cityId: { not: null } } }),
+    prisma.property.count({ where: { images: { none: {} } } }),
+    prisma.property.count({ where: { agentId: null } }),
+    prisma.property.count({ where: { cityId: null } }),
+    prisma.property.count({
+      where: {
+        OR: [
+          { description: null },
+          { address: null },
+          { sizeM2: null },
+          { images: { none: {} } },
+          { agentId: null },
+          { cityId: null },
+        ],
+      },
+    }),
+    prisma.property.groupBy({
+      by: ["kind"],
+      _count: { _all: true },
+    }),
+  ]);
+
+  const calcPercent = (count, total) => {
+    if (!total || total === 0) return 0;
+    return Number(((count / total) * 100).toFixed(1));
+  };
+
+  const calcChange = (recent, prev) => {
+    if (prev === 0) return recent > 0 ? 100 : 0;
+    return Math.round(((recent - prev) / prev) * 100);
+  };
+
+  // Timeframe calculation for Added Over Time
+  const daysCount = timeframe === "30d" ? 30 : 7;
+  const startDate = new Date();
+  startDate.setHours(0, 0, 0, 0);
+  startDate.setDate(startDate.getDate() - (daysCount - 1));
+
+  const recentCreatedProperties = await prisma.property.findMany({
+    where: {
+      createdAt: { gte: startDate },
+    },
+    select: {
+      id: true,
+      createdAt: true,
+    },
+  });
+
+  const dayBuckets = [];
+  for (let i = 0; i < daysCount; i++) {
+    const d = new Date(startDate);
+    d.setDate(d.getDate() + i);
+    const dateStr = d.toISOString().split("T")[0];
+    const label = d.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
+    dayBuckets.push({ date: dateStr, label, count: 0 });
+  }
+
+  recentCreatedProperties.forEach((p) => {
+    const pDateStr = new Date(p.createdAt).toISOString().split("T")[0];
+    const bucket = dayBuckets.find((b) => b.date === pDateStr);
+    if (bucket) {
+      bucket.count += 1;
+    }
+  });
+
+  const residential =
+    kindGroups.find((g) => g.kind === "RESIDENTIAL")?._count._all || 0;
+  const commercial =
+    kindGroups.find((g) => g.kind === "COMMERCIAL")?._count._all || 0;
+  const land =
+    kindGroups.find((g) => g.kind === "LAND")?._count._all || 0;
+  const warehouse =
+    kindGroups.find((g) => g.kind === "WAREHOUSE")?._count._all || 0;
+
+  return {
+    metrics: {
+      total: {
+        count: totalProperties,
+        change: calcChange(propertiesLast30, propertiesPrev30),
+      },
+      withImages: {
+        count: withImagesCount,
+        percentage: calcPercent(withImagesCount, totalProperties),
+      },
+      withAgent: {
+        count: withAgentCount,
+        percentage: calcPercent(withAgentCount, totalProperties),
+      },
+      withCity: {
+        count: withCityCount,
+        percentage: calcPercent(withCityCount, totalProperties),
+      },
+      missingData: {
+        count: incompleteCount,
+        percentage: calcPercent(incompleteCount, totalProperties),
       },
     },
-  },
-
-  orderBy: {
-    [finalSortBy]: finalSortOrder,
-  },
-
-  skip,
-  take: pageSize,
-});
-
-const total = await prisma.property.count({
-  where,
-});
-
-return {
-  data: properties,
-  pagination: {
-    page: pageNumber,
-    limit: pageSize,
-    total,
-    totalPages: Math.ceil(total / pageSize),
-  },
-};
-
+    missingBreakdown: {
+      noImages: noImagesCount,
+      noAgent: noAgentCount,
+      noCity: noCityCount,
+      incompleteDetails: incompleteCount,
+    },
+    addedOverTime: dayBuckets,
+    byType: {
+      residential: {
+        count: residential,
+        percentage: calcPercent(residential, totalProperties),
+      },
+      commercial: {
+        count: commercial,
+        percentage: calcPercent(commercial, totalProperties),
+      },
+      land: {
+        count: land,
+        percentage: calcPercent(land, totalProperties),
+      },
+      warehouse: {
+        count: warehouse,
+        percentage: calcPercent(warehouse, totalProperties),
+      },
+    },
+  };
 }
 
 /**

@@ -1,9 +1,8 @@
-import React from 'react'
+'use client';
 
-const page = () => {
-  return (
-    <div>property page</div>
-  )
+import React from 'react';
+import PropertiesContainer from '@/component/admin/property/PropertiesContainer';
+
+export default function Page() {
+  return <PropertiesContainer />;
 }
-
-export default page

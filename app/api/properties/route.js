@@ -60,6 +60,14 @@ export async function GET(request) {
       sortOrder:
         searchParams.get("sortOrder") ||
         "desc",
+
+      search:
+        searchParams.get("search") ||
+        undefined,
+
+      missingFilter:
+        searchParams.get("missingFilter") ||
+        undefined,
     });
 
     return Response.json(
