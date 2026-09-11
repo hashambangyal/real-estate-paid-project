@@ -1,9 +1,8 @@
-import React from 'react'
+'use client';
 
-const page = () => {
-  return (
-    <div>inquiry page</div>
-  )
+import React from 'react';
+import InquiriesContainer from '@/component/admin/inquiry/InquiriesContainer';
+
+export default function InquiriesPage() {
+  return <InquiriesContainer />;
 }
-
-export default page

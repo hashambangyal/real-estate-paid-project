@@ -5,16 +5,29 @@ import {
 import { requireAdmin, UnauthorizedError } from "@/lib/auth";
 
 
-export async function GET() {
+export async function GET(request) {
   try {
-    await requireAdmin()
-    const inquiries = await getInquiries();
+    await requireAdmin();
+    const { searchParams } = new URL(request.url);
+    const search = searchParams.get("search") || "";
+    const status = searchParams.get("status") || "";
+    const dateFilter = searchParams.get("dateFilter") || "";
+    const sortBy = searchParams.get("sortBy") || "createdAt";
+    const sortOrder = searchParams.get("sortOrder") || "desc";
+    const page = parseInt(searchParams.get("page") || "1", 10);
+    const limit = parseInt(searchParams.get("limit") || "20", 10);
 
-    return Response.json(
-      inquiries,
-      { status: 200 }
-    );
+    const result = await getInquiries({
+      search,
+      status,
+      dateFilter,
+      sortBy,
+      sortOrder,
+      page,
+      limit,
+    });
 
+    return Response.json(result, { status: 200 });
   } catch (error) {
     if (error instanceof UnauthorizedError) {
       return Response.json(
@@ -27,7 +40,7 @@ export async function GET() {
       );
     }
     console.error(
-      "GET /api/inquiries error:",
+      "GET /api/inquiry error:",
       error
     );
 

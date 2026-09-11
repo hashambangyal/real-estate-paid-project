@@ -25,6 +25,13 @@ enum PropertyStatus {
     RESERVED
 }
 
+enum InquiryStatus {
+    NEW
+    IN_PROGRESS
+    REPLIED
+    CLOSED
+}
+
 
 model Agent {
   id          String     @id @default(cuid())
@@ -104,6 +111,7 @@ model Property {
 
   images        PropertyImage[]
   amenities     PropertyAmenity[]
+  inquiries     Inquiry[]
 
   createdAt     DateTime       @default(now())   // used for "posted X days ago"
   updatedAt     DateTime       @updatedAt
@@ -130,14 +138,18 @@ model PropertyImage {
 }
 
 model Inquiry {
-  id          String     @id @default(cuid())
+  id          String         @id @default(cuid())
   name        String
   email       String
   phone       String?
   message     String
+  status      InquiryStatus  @default(NEW)
 
+  propertyId  String?
+  property    Property?      @relation(fields: [propertyId], references: [id], onDelete: SetNull)
 
-  createdAt   DateTime   @default(now())
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @default(now()) @updatedAt
 
   @@map("inquiries")
 }
