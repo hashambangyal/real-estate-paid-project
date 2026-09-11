@@ -38,12 +38,6 @@ const menuItems = [
     apiUrls: ["/api/agent"],
   },
   {
-    name: "Amenities",
-    href: "/admin/amenities",
-    icon: Tag,
-    apiUrls: ["/api/amenities"],
-  },
-  {
     name: "Cities",
     href: "/admin/cities",
     icon: MapPin,
