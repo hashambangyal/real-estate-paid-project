@@ -18,8 +18,15 @@ import InquiryTable from './InquiryTable';
 import InquiryDetailsDrawer from './InquiryDetailsDrawer';
 import InquiryReplyModal from './InquiryReplyModal';
 import InquiryDeleteModal from './InquiryDeleteModal';
+import { useAdminCache } from '@/context/AdminCacheContext';
 
 export default function InquiriesContainer() {
+  const { getCached, fetchWithCache, invalidate } = useAdminCache();
+  const cachedStats = getCached('/api/inquiry/stats');
+  const cachedInquiries = getCached(
+    '/api/inquiry?page=1&limit=15&sortBy=createdAt&sortOrder=desc'
+  );
+
   // Mobile drawer state
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -27,18 +34,20 @@ export default function InquiriesContainer() {
   const [globalSearch, setGlobalSearch] = useState('');
 
   // Stats State
-  const [stats, setStats] = useState(null);
-  const [isStatsLoading, setIsStatsLoading] = useState(true);
+  const [stats, setStats] = useState(cachedStats);
+  const [isStatsLoading, setIsStatsLoading] = useState(!cachedStats);
 
   // Inquiries List & Pagination State
-  const [inquiries, setInquiries] = useState([]);
-  const [pagination, setPagination] = useState({
-    page: 1,
-    limit: 15,
-    total: 0,
-    totalPages: 1,
-  });
-  const [isInquiriesLoading, setIsInquiriesLoading] = useState(true);
+  const [inquiries, setInquiries] = useState(cachedInquiries?.inquiries || []);
+  const [pagination, setPagination] = useState(
+    cachedInquiries?.pagination || {
+      page: 1,
+      limit: 15,
+      total: 0,
+      totalPages: 1,
+    }
+  );
+  const [isInquiriesLoading, setIsInquiriesLoading] = useState(!cachedInquiries);
 
   // Filter State
   const [filters, setFilters] = useState({
@@ -82,15 +91,21 @@ export default function InquiriesContainer() {
   const [inquiriesRefreshKey, setInquiriesRefreshKey] = useState(0);
 
   // ----------------------------------------------------
-  // Load Stats
+  // Load Stats (Stale-While-Revalidate)
   // ----------------------------------------------------
   useEffect(() => {
     let ignore = false;
     async function loadStats() {
       try {
-        const res = await fetch('/api/inquiry/stats');
-        if (!res.ok) throw new Error('Failed to load stats');
-        const data = await res.json();
+        const data = await fetchWithCache('/api/inquiry/stats', {
+          onRevalidate: (fresh) => {
+            if (!ignore) {
+              setStats(fresh);
+              setIsStatsLoading(false);
+            }
+          },
+          forceRefresh: statsRefreshKey > 0,
+        });
         if (!ignore) {
           setStats(data);
           setIsStatsLoading(false);
@@ -107,10 +122,10 @@ export default function InquiriesContainer() {
     return () => {
       ignore = true;
     };
-  }, [statsRefreshKey]);
+  }, [statsRefreshKey, fetchWithCache]);
 
   // ----------------------------------------------------
-  // Load Inquiries List
+  // Load Inquiries List (Stale-While-Revalidate)
   // ----------------------------------------------------
   useEffect(() => {
     let ignore = false;
@@ -125,9 +140,17 @@ export default function InquiriesContainer() {
         params.append('page', filters.page.toString());
         params.append('limit', '15');
 
-        const res = await fetch(`/api/inquiry?${params.toString()}`);
-        if (!res.ok) throw new Error('Failed to load inquiries');
-        const data = await res.json();
+        const inqUrl = `/api/inquiry?${params.toString()}`;
+        const data = await fetchWithCache(inqUrl, {
+          onRevalidate: (fresh) => {
+            if (!ignore) {
+              setInquiries(fresh.inquiries || []);
+              setPagination(fresh.pagination || { page: 1, limit: 15, total: 0, totalPages: 1 });
+              setIsInquiriesLoading(false);
+            }
+          },
+          forceRefresh: inquiriesRefreshKey > 0,
+        });
 
         if (!ignore) {
           setInquiries(data.inquiries || []);
@@ -158,7 +181,7 @@ export default function InquiriesContainer() {
     return () => {
       ignore = true;
     };
-  }, [filters, inquiriesRefreshKey]);
+  }, [filters, inquiriesRefreshKey, fetchWithCache]);
 
   // ----------------------------------------------------
   // Filter Handlers
@@ -234,7 +257,9 @@ export default function InquiriesContainer() {
       }
 
       showToast(`Inquiry status updated to ${updated.status}`);
+      invalidate('/api/inquiry');
       setStatsRefreshKey((k) => k + 1);
+      setInquiriesRefreshKey((k) => k + 1);
     } catch (err) {
       console.error('handleStatusChange error:', err);
       showToast(err.message || 'Failed to update status', 'error');
@@ -285,7 +310,9 @@ export default function InquiriesContainer() {
 
       showToast('Reply sent successfully to customer email!');
       closeReplyModal();
+      invalidate('/api/inquiry');
       setStatsRefreshKey((k) => k + 1);
+      setInquiriesRefreshKey((k) => k + 1);
     } catch (err) {
       console.error('handleSendReply error:', err);
       showToast(err.message || 'Failed to send reply email', 'error');
@@ -331,7 +358,9 @@ export default function InquiriesContainer() {
       }
 
       closeDeleteModal();
+      invalidate('/api/inquiry');
       setStatsRefreshKey((k) => k + 1);
+      setInquiriesRefreshKey((k) => k + 1);
     } catch (err) {
       console.error('handleDeleteConfirm error:', err);
       showToast(err.message || 'Failed to delete inquiry', 'error');

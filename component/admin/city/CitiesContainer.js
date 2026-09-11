@@ -9,15 +9,22 @@ import CityListTable from './CityListTable';
 import CityPropertiesSection from './CityPropertiesSection';
 import CityModal from './CityModal';
 import CityDeleteModal from './CityDeleteModal';
+import { useAdminCache } from '@/context/AdminCacheContext';
 
 export default function CitiesContainer() {
   const router = useRouter();
+  const { getCached, fetchWithCache, invalidate } = useAdminCache();
+
+  // Cached initial cities
+  const cachedCities = getCached('/api/cities');
 
   // Data states
-  const [cities, setCities] = useState([]);
-  const [selectedCity, setSelectedCity] = useState(null);
+  const [cities, setCities] = useState(cachedCities || []);
+  const [selectedCity, setSelectedCity] = useState(
+    cachedCities && cachedCities.length > 0 ? cachedCities[0] : null
+  );
   const [properties, setProperties] = useState([]);
-  const [isLoadingCities, setIsLoadingCities] = useState(true);
+  const [isLoadingCities, setIsLoadingCities] = useState(!cachedCities);
   const [isLoadingProperties, setIsLoadingProperties] = useState(false);
   const [error, setError] = useState('');
 
@@ -47,19 +54,24 @@ export default function CitiesContainer() {
     setTimeout(() => setToast(null), 3500);
   };
 
-  // ---- 1. Fetch Cities on Mount ----
+  // ---- 1. Fetch Cities on Mount (Stale-While-Revalidate) ----
   useEffect(() => {
     let ignore = false;
 
     async function loadInitialCities() {
       try {
-        const res = await fetch('/api/cities');
-        if (!res.ok) throw new Error('Failed to load cities');
-        const data = await res.json();
+        const data = await fetchWithCache('/api/cities', {
+          onRevalidate: (fresh) => {
+            if (!ignore) {
+              setCities(fresh);
+              setIsLoadingCities(false);
+            }
+          },
+        });
         if (!ignore) {
           setCities(data);
           if (data.length > 0) {
-            setSelectedCity(data[0]);
+            setSelectedCity((prev) => prev || data[0]);
           }
           setIsLoadingCities(false);
         }
@@ -76,12 +88,13 @@ export default function CitiesContainer() {
     return () => {
       ignore = true;
     };
-  }, []);
+  }, [fetchWithCache]);
 
   // Refresh cities helper (called from event handlers)
   const refreshCities = useCallback(async (preserveSelectedId = null) => {
     setIsLoadingCities(true);
     setError('');
+    invalidate('/api/cities');
     try {
       const res = await fetch('/api/cities');
       if (!res.ok) throw new Error('Failed to load cities');
@@ -104,7 +117,7 @@ export default function CitiesContainer() {
     } finally {
       setIsLoadingCities(false);
     }
-  }, [selectedCity]);
+  }, [selectedCity, invalidate]);
 
   // ---- 2. Fetch Properties for Selected City with Active Filters ----
   useEffect(() => {
@@ -113,37 +126,46 @@ export default function CitiesContainer() {
     }
 
     let ignore = false;
-    const params = new URLSearchParams();
-    params.set('cityId', selectedCity.id);
-    params.set('limit', '50');
+    async function loadCityProperties() {
+      try {
+        const params = new URLSearchParams();
+        params.set('cityId', selectedCity.id);
+        params.set('limit', '50');
 
-    if (offerType !== 'ALL') params.set('offerType', offerType);
-    if (propertyKind !== 'ALL') params.set('kind', propertyKind);
-    if (status !== 'ALL') params.set('status', status);
+        if (offerType !== 'ALL') params.set('offerType', offerType);
+        if (propertyKind !== 'ALL') params.set('kind', propertyKind);
+        if (status !== 'ALL') params.set('status', status);
 
-    fetch(`/api/properties?${params.toString()}`)
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to load properties');
-        return res.json();
-      })
-      .then((data) => {
+        const propUrl = `/api/properties?${params.toString()}`;
+
+        const data = await fetchWithCache(propUrl, {
+          onRevalidate: (fresh) => {
+            if (!ignore) {
+              setProperties(fresh.data || []);
+              setIsLoadingProperties(false);
+            }
+          },
+        });
+
         if (!ignore) {
           setProperties(data.data || []);
           setIsLoadingProperties(false);
         }
-      })
-      .catch((err) => {
+      } catch (err) {
         if (!ignore) {
           console.error('Fetch properties error:', err);
           setProperties([]);
           setIsLoadingProperties(false);
         }
-      });
+      }
+    }
+
+    loadCityProperties();
 
     return () => {
       ignore = true;
     };
-  }, [selectedCity?.id, offerType, propertyKind, status]);
+  }, [selectedCity?.id, offerType, propertyKind, status, fetchWithCache]);
 
   // ---- 3. Filtered Cities List (Search filter) ----
   const filteredCities = useMemo(() => {

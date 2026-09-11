@@ -7,13 +7,18 @@ import Sidebar from '../Sidebar';
 import AgentList from './AgentList';
 import AgentForm from './AgentForm';
 import AgentProfile from './AgentProfile';
+import { useAdminCache } from '@/context/AdminCacheContext';
 
 export default function AgentsContainer() {
   const router = useRouter();
-const [isSubmitting, setIsSubmitting] = useState(false);
-const [submitAction, setSubmitAction] = useState(''); // 'creating' | 'updating' | 'deleting'
-  const [agents, setAgents] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { getCached, fetchWithCache, invalidate } = useAdminCache();
+
+  const cachedAgents = getCached('/api/agent');
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitAction, setSubmitAction] = useState(''); // 'creating' | 'updating' | 'deleting'
+  const [agents, setAgents] = useState(cachedAgents || []);
+  const [isLoading, setIsLoading] = useState(!cachedAgents);
   const [error, setError] = useState('');
 
   const [currentView, setCurrentView] = useState('list'); // 'list' | 'new' | 'edit' | 'view'
@@ -26,15 +31,19 @@ const [submitAction, setSubmitAction] = useState(''); // 'creating' | 'updating'
     setTimeout(() => setToastMessage(''), 3000);
   };
 
-  // ---- Fetch agents from real API ----
-  // ---- Fetch agents on Mount ----
+  // ---- Fetch agents on Mount (Stale-While-Revalidate) ----
   useEffect(() => {
     let ignore = false;
     async function loadAgents() {
       try {
-        const res = await fetch('/api/agent');
-        if (!res.ok) throw new Error('Failed to fetch agents');
-        const data = await res.json();
+        const data = await fetchWithCache('/api/agent', {
+          onRevalidate: (fresh) => {
+            if (!ignore) {
+              setAgents(fresh);
+              setIsLoading(false);
+            }
+          },
+        });
         if (!ignore) {
           setAgents(data);
           setIsLoading(false);
@@ -51,11 +60,12 @@ const [submitAction, setSubmitAction] = useState(''); // 'creating' | 'updating'
     return () => {
       ignore = true;
     };
-  }, []);
+  }, [fetchWithCache]);
 
   const fetchAgents = useCallback(async () => {
     setIsLoading(true);
     setError('');
+    invalidate('/api/agent');
     try {
       const res = await fetch('/api/agent');
       if (!res.ok) throw new Error('Failed to fetch agents');
@@ -67,7 +77,7 @@ const [submitAction, setSubmitAction] = useState(''); // 'creating' | 'updating'
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [invalidate]);
 
 
   // ---- Add New Agent ----

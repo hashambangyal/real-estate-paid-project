@@ -19,22 +19,31 @@ import PropertyTipWidget from './PropertyTipWidget';
 import PropertiesTable from './PropertiesTable';
 import PropertyFormModal from './PropertyFormModal';
 import PropertyDeleteModal from './PropertyDeleteModal';
+import { useAdminCache } from '@/context/AdminCacheContext';
 
 export default function PropertiesContainer() {
+  const { getCached, fetchWithCache, invalidate } = useAdminCache();
+
   // Mobile drawer state
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Timeframe for Stats Chart
   const [timeframe, setTimeframe] = useState('7d');
 
-  // Stats State
-  const [stats, setStats] = useState(null);
-  const [isStatsLoading, setIsStatsLoading] = useState(true);
+  // Stats State (Cached initial)
+  const statsUrl = `/api/properties/stats?timeframe=${timeframe}`;
+  const cachedStats = getCached(statsUrl);
+  const [stats, setStats] = useState(cachedStats);
+  const [isStatsLoading, setIsStatsLoading] = useState(!cachedStats);
 
-  // Properties List & Pagination State
-  const [properties, setProperties] = useState([]);
-  const [pagination, setPagination] = useState({ page: 1, limit: 12, total: 0, totalPages: 1 });
-  const [isPropertiesLoading, setIsPropertiesLoading] = useState(true);
+  // Properties List & Pagination State (Cached initial)
+  const initialPropsUrl = `/api/properties?page=1&limit=12&sortBy=createdAt&sortOrder=desc`;
+  const cachedProps = getCached(initialPropsUrl);
+  const [properties, setProperties] = useState(cachedProps?.data || []);
+  const [pagination, setPagination] = useState(
+    cachedProps?.pagination || { page: 1, limit: 12, total: 0, totalPages: 1 }
+  );
+  const [isPropertiesLoading, setIsPropertiesLoading] = useState(!cachedProps);
 
   // Filter & Search State
   const [filters, setFilters] = useState({
@@ -48,9 +57,9 @@ export default function PropertiesContainer() {
   });
 
   // Auxiliary data for dropdowns in form
-  const [cities, setCities] = useState([]);
-  const [agents, setAgents] = useState([]);
-  const [amenities, setAmenities] = useState([]);
+  const [cities, setCities] = useState(() => getCached('/api/cities') || []);
+  const [agents, setAgents] = useState(() => getCached('/api/agent') || []);
+  const [amenities, setAmenities] = useState(() => getCached('/api/amenities') || []);
 
   // Modal States
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
@@ -77,20 +86,29 @@ export default function PropertiesContainer() {
   const triggerRefresh = () => {
     setIsStatsLoading(true);
     setIsPropertiesLoading(true);
+    invalidate('/api/properties');
     setRefreshKey((k) => k + 1);
   };
 
   // ----------------------------------------------------
-  // Load Stats
+  // Load Stats (Stale-While-Revalidate)
   // ----------------------------------------------------
   useEffect(() => {
     let ignore = false;
 
     async function loadStats() {
       try {
-        const res = await fetch(`/api/properties/stats?timeframe=${timeframe}`);
-        if (!res.ok) throw new Error('Failed to load stats');
-        const data = await res.json();
+        const url = `/api/properties/stats?timeframe=${timeframe}`;
+        const data = await fetchWithCache(url, {
+          onRevalidate: (fresh) => {
+            if (!ignore) {
+              setStats(fresh);
+              setIsStatsLoading(false);
+            }
+          },
+          forceRefresh: refreshKey > 0,
+        });
+
         if (!ignore) {
           setStats(data);
           setIsStatsLoading(false);
@@ -107,10 +125,10 @@ export default function PropertiesContainer() {
     return () => {
       ignore = true;
     };
-  }, [timeframe, refreshKey]);
+  }, [timeframe, refreshKey, fetchWithCache]);
 
   // ----------------------------------------------------
-  // Load Properties with active filters
+  // Load Properties with active filters (Stale-While-Revalidate)
   // ----------------------------------------------------
   useEffect(() => {
     let ignore = false;
@@ -127,9 +145,17 @@ export default function PropertiesContainer() {
         if (filters.sortOrder) params.set('sortOrder', filters.sortOrder);
         if (filters.missingFilter) params.set('missingFilter', filters.missingFilter);
 
-        const res = await fetch(`/api/properties?${params.toString()}`);
-        if (!res.ok) throw new Error('Failed to load properties');
-        const json = await res.json();
+        const propUrl = `/api/properties?${params.toString()}`;
+        const json = await fetchWithCache(propUrl, {
+          onRevalidate: (fresh) => {
+            if (!ignore) {
+              setProperties(fresh.data || []);
+              setPagination(fresh.pagination || { page: 1, limit: 12, total: 0, totalPages: 1 });
+              setIsPropertiesLoading(false);
+            }
+          },
+          forceRefresh: refreshKey > 0,
+        });
 
         if (!ignore) {
           setProperties(json.data || []);
@@ -139,6 +165,7 @@ export default function PropertiesContainer() {
       } catch (err) {
         if (!ignore) {
           console.error('fetchProperties error:', err);
+          showToast(err.message || 'Error loading properties', 'error');
           setIsPropertiesLoading(false);
         }
       }
@@ -148,26 +175,26 @@ export default function PropertiesContainer() {
     return () => {
       ignore = true;
     };
-  }, [filters, refreshKey]);
+  }, [filters, refreshKey, fetchWithCache]);
 
   // ----------------------------------------------------
-  // Load Auxiliaries (Cities, Agents, Amenities)
+  // Load Auxiliaries (Cities, Agents, Amenities) with Cache
   // ----------------------------------------------------
   useEffect(() => {
     let ignore = false;
 
     async function loadAux() {
       try {
-        const [citiesRes, agentsRes, amenitiesRes] = await Promise.all([
-          fetch('/api/cities'),
-          fetch('/api/agent'),
-          fetch('/api/amenities'),
+        const [citiesData, agentsData, amenitiesData] = await Promise.all([
+          fetchWithCache('/api/cities'),
+          fetchWithCache('/api/agent'),
+          fetchWithCache('/api/amenities'),
         ]);
 
         if (!ignore) {
-          if (citiesRes.ok) setCities(await citiesRes.json());
-          if (agentsRes.ok) setAgents(await agentsRes.json());
-          if (amenitiesRes.ok) setAmenities(await amenitiesRes.json());
+          if (citiesData) setCities(citiesData);
+          if (agentsData) setAgents(agentsData);
+          if (amenitiesData) setAmenities(amenitiesData);
         }
       } catch (err) {
         console.error('loadAux error:', err);
@@ -178,7 +205,7 @@ export default function PropertiesContainer() {
     return () => {
       ignore = true;
     };
-  }, []);
+  }, [fetchWithCache]);
 
   // ----------------------------------------------------
   // Filter Handlers

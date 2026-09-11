@@ -20,24 +20,34 @@ import PropertyTypeDistributionCard from './PropertyTypeDistributionCard';
 import RecentPropertiesCard from './RecentPropertiesCard';
 import CityWisePropertiesCard from './CityWisePropertiesCard';
 import RecentInquiriesCard from './RecentInquiriesCard';
+import { useAdminCache } from '@/context/AdminCacheContext';
 
 export default function DashboardContainer() {
-  const [stats, setStats] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { getCached, fetchWithCache } = useAdminCache();
+  const cachedInitial = getCached('/api/dashboard/stats');
+
+  const [stats, setStats] = useState(cachedInitial);
+  const [isLoading, setIsLoading] = useState(!cachedInitial);
   const [error, setError] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [timeRange, setTimeRange] = useState('30d');
 
-  // Fetch dashboard stats on mount
+  // Fetch dashboard stats on mount (Stale-While-Revalidate)
   useEffect(() => {
     let ignore = false;
 
     async function loadStats() {
       try {
-        const res = await fetch('/api/dashboard/stats');
-        if (!res.ok) throw new Error('Failed to load dashboard statistics');
-        const data = await res.json();
+        const data = await fetchWithCache('/api/dashboard/stats', {
+          onRevalidate: (freshData) => {
+            if (!ignore) {
+              setStats(freshData);
+              setIsLoading(false);
+            }
+          },
+        });
+
         if (!ignore) {
           setStats(data);
           setIsLoading(false);
@@ -55,7 +65,7 @@ export default function DashboardContainer() {
     return () => {
       ignore = true;
     };
-  }, []);
+  }, [fetchWithCache]);
 
   return (
     <div className="flex h-screen w-full bg-[#F5F7FA] overflow-hidden font-sans">
