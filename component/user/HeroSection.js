@@ -31,7 +31,7 @@ export default function HeroSection() {
         {/* TOP SEGMENT: FIRST SCREEN / FOLD                              */}
         {/* Full min-h-screen so the lower box is NOT visible on 1st page */}
         {/* ------------------------------------------------------------- */}
-        <div className="relative z-10 w-full min-h-screen flex flex-col items-center justify-center text-center select-none pointer-events-none px-4 pt-16">
+        <div className="relative z-10 w-full min-h-screen flex flex-col items-center justify-center text-center select-none pointer-events-none px-4 pt-55">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -39,12 +39,12 @@ export default function HeroSection() {
             className="flex flex-col items-center justify-center leading-none"
           >
             {/* LUXURY - Bold / Thick */}
-            <span className="text-white/70 text-[50px] sm:text-[110px] md:text-[150px] lg:text-[180px] xl:text-[170px] font-medium tracking-[0.06em] uppercase font-sans drop-shadow-md">
+            <span className="text-white/75 text-[50px] sm:text-[110px] md:text-[150px] lg:text-[180px] xl:text-[170px] font-normal tracking-[0.06em] uppercase font-sans drop-shadow-md scale-y-115">
               LUXURY
             </span>
 
             {/* HOME - Bold / Thick with distinct positive distance from LUXURY */}
-            <span className="text-white/40 text-[50px] sm:text-[110px] md:text-[150px] lg:text-[180px] xl:text-[170px] font-medium tracking-[0.06em] uppercase font-sans mt-3 sm:mt-6 lg:mt-8 drop-shadow-md">
+            <span className="text-white/40 text-[50px] sm:text-[110px] md:text-[150px] lg:text-[180px] xl:text-[170px] font-normal tracking-[0.06em] uppercase font-sans mt-1 sm:mt-2 lg:mt-3 drop-shadow-md">
               HOME
             </span>
           </motion.div>
@@ -144,7 +144,7 @@ export default function HeroSection() {
               {/* Card 1: Properties Sold 500+ */}
               <div className="bg-white/95 backdrop-blur-md p-5 sm:p-7 rounded-3xl shadow-xl border border-white/40 flex flex-col justify-center">
                 <span className="text-xs sm:text-sm text-slate-600 font-medium">
-                  Properties Sold
+                  Properties Sold + Rent
                 </span>
                 <span className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#466555] mt-1 sm:mt-2 tracking-tight">
                   500+

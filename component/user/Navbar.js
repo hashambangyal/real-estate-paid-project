@@ -31,9 +31,12 @@ export default function Navbar() {
 
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (pagesRef.current && !pagesRef.current.contains(e.target)) setPagesDropdown(false);
-      if (propsRef.current && !propsRef.current.contains(e.target)) setPropertiesDropdown(false);
-      if (blogRef.current && !blogRef.current.contains(e.target)) setBlogDropdown(false);
+      if (pagesRef.current && !pagesRef.current.contains(e.target))
+        setPagesDropdown(false);
+      if (propsRef.current && !propsRef.current.contains(e.target))
+        setPropertiesDropdown(false);
+      if (blogRef.current && !blogRef.current.contains(e.target))
+        setBlogDropdown(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -54,22 +57,26 @@ export default function Navbar() {
           }`}
         >
           {/* Left: Brand Logo & Slender Typography */}
-          <Link href="/" className="flex items-center gap-3.5 select-none group shrink-0">
+          <Link
+            href="/"
+            className="flex items-center gap-3.5 select-none group shrink-0"
+          >
             <div className="relative w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center">
               <Image
                 src="/logo.png"
                 alt="Inmobiliaria Hersu"
-                width={42}
-                height={42}
+                width={62}
+                height={62}
                 className="w-full h-full object-contain drop-shadow-sm group-hover:scale-105 transition-transform"
                 priority
               />
             </div>
             <div className="flex flex-col justify-center">
-              <span className="text-[8.5px] sm:text-[9.5px] tracking-[0.28em] font-normal text-slate-500 uppercase leading-tight font-sans">
+              <span className="text-[8.5px] sm:text-[9.5px] tracking-[0.28em] font-medium text-slate-700 uppercase leading-tight font-sans">
                 INMOBILIARIA
               </span>
-              <span className="text-[15px] sm:text-[18px] tracking-[0.14em] font-serif text-slate-900 font-normal leading-tight mt-0.5">
+
+              <span className="text-[20px] sm:text-[18px] tracking-[0.14em] font-serif text-slate-950 font-extrabold leading-tight mt-0.5">
                 HERSU
               </span>
             </div>
@@ -99,7 +106,9 @@ export default function Navbar() {
                 <span>Pages</span>
                 <ChevronDown
                   className={`w-3.5 h-3.5 stroke-[1.5] transition-transform duration-200 ${
-                    pagesDropdown ? "rotate-180 text-[#466555]" : "text-slate-400"
+                    pagesDropdown
+                      ? "rotate-180 text-[#466555]"
+                      : "text-slate-400"
                   }`}
                 />
               </button>
@@ -160,7 +169,9 @@ export default function Navbar() {
                 <span>Properties</span>
                 <ChevronDown
                   className={`w-3.5 h-3.5 stroke-[1.5] transition-transform duration-200 ${
-                    propertiesDropdown ? "rotate-180 text-[#466555]" : "text-slate-400"
+                    propertiesDropdown
+                      ? "rotate-180 text-[#466555]"
+                      : "text-slate-400"
                   }`}
                 />
               </button>
@@ -221,7 +232,9 @@ export default function Navbar() {
                 <span>Blog</span>
                 <ChevronDown
                   className={`w-3.5 h-3.5 stroke-[1.5] transition-transform duration-200 ${
-                    blogDropdown ? "rotate-180 text-[#466555]" : "text-slate-400"
+                    blogDropdown
+                      ? "rotate-180 text-[#466555]"
+                      : "text-slate-400"
                   }`}
                 />
               </button>
@@ -282,7 +295,11 @@ export default function Navbar() {
               className="p-2.5 rounded-full text-slate-700 hover:text-[#466555] hover:bg-slate-100 focus:outline-none transition-colors"
               aria-label="Toggle menu"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6 stroke-[1.5]" /> : <Menu className="w-6 h-6 stroke-[1.5]" />}
+              {mobileMenuOpen ? (
+                <X className="w-6 h-6 stroke-[1.5]" />
+              ) : (
+                <Menu className="w-6 h-6 stroke-[1.5]" />
+              )}
             </button>
           </div>
         </div>
