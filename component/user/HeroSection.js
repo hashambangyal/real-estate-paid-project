@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 
 export default function HeroSection() {
   return (
-    <section id="hero" className="relative w-full overflow-hidden bg-slate-950 pt-[72px]">
+    <section id="hero" className="relative w-full overflow-hidden bg-slate-950">
       {/* 
         Continuous Extended House Background (Images 2, 3, 4)
         Spans the entire hero from top to bottom
@@ -30,7 +30,7 @@ export default function HeroSection() {
         {/* ------------------------------------------------------------- */}
         {/* TOP SEGMENT (Image 2): Giant Semi-Transparent "LUXURY HOME"   */}
         {/* ------------------------------------------------------------- */}
-        <div className="relative z-10 w-full pt-12 sm:pt-16 lg:pt-20 text-center select-none pointer-events-none px-4">
+        <div className="relative z-10 w-full pt-28 sm:pt-36 lg:pt-40 text-center select-none pointer-events-none px-4">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
