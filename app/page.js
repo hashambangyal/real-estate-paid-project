@@ -1,9 +1,11 @@
-import React from 'react'
+import UserHome from "@/component/user/UserHome";
 
-const page = () => {
-  return (
-    <div>page</div>
-  )
+export const metadata = {
+  title: "Inmobiliaria Hersu | Luxury Real Estate & Developments",
+  description:
+    "Discover premium residential and commercial properties with verified legal titles, prime locations, and expert advisory.",
+};
+
+export default function HomePage() {
+  return <UserHome />;
 }
-
-export default page
