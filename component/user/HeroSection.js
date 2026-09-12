@@ -37,10 +37,10 @@ export default function HeroSection() {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="flex flex-col items-center justify-center leading-none"
           >
-            <span className="text-white/30 text-[64px] sm:text-[110px] md:text-[150px] lg:text-[180px] xl:text-[210px] font-black tracking-wider uppercase font-sans drop-shadow-sm">
+            <span className="text-white/40 text-[64px] sm:text-[110px] md:text-[150px] lg:text-[180px] xl:text-[210px] font-light tracking-[0.06em] uppercase font-sans drop-shadow-sm">
               LUXURY
             </span>
-            <span className="text-white/25 text-[64px] sm:text-[110px] md:text-[150px] lg:text-[180px] xl:text-[210px] font-black tracking-wider uppercase font-sans -mt-4 sm:-mt-10 lg:-mt-16 drop-shadow-sm">
+            <span className="text-white/35 text-[64px] sm:text-[110px] md:text-[150px] lg:text-[180px] xl:text-[210px] font-light tracking-[0.06em] uppercase font-sans -mt-4 sm:-mt-10 lg:-mt-16 drop-shadow-sm">
               HOME
             </span>
           </motion.div>
