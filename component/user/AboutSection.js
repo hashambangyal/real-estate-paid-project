@@ -5,32 +5,32 @@ import { ShieldCheck, MapPin, Sparkles, Building, Check, Quote } from "lucide-re
 import { motion } from "framer-motion";
 
 export default function AboutSection() {
-  const valueCards = [
-    {
-      title: "Secure Transactions",
-      description: "Certified legal contracts, clear title verification, and protected escrow accounts for every deal.",
-      icon: ShieldCheck,
-      color: "text-[#3f5f50] bg-emerald-50",
-    },
-    {
-      title: "Prime Locations",
-      description: "Curated residential developments and waterfront investments in the most coveted growth corridors.",
-      icon: MapPin,
-      color: "text-[#326bff] bg-blue-50",
-    },
-    {
-      title: "Modern Living",
-      description: "Contemporary architectural design featuring biophilic aesthetics, high ceilings, and smart home amenities.",
-      icon: Sparkles,
-      color: "text-amber-600 bg-amber-50",
-    },
-    {
-      title: "Commercial Spaces",
-      description: "High-yield retail spaces, modern business hubs, and strategic land development opportunities.",
-      icon: Building,
-      color: "text-indigo-600 bg-indigo-50",
-    },
-  ];
+  // const valueCards = [
+  //   {
+  //     title: "Secure Transactions",
+  //     description: "Certified legal contracts, clear title verification, and protected escrow accounts for every deal.",
+  //     icon: ShieldCheck,
+  //     color: "text-[#3f5f50] bg-emerald-50",
+  //   },
+  //   {
+  //     title: "Prime Locations",
+  //     description: "Curated residential developments and waterfront investments in the most coveted growth corridors.",
+  //     icon: MapPin,
+  //     color: "text-[#326bff] bg-blue-50",
+  //   },
+  //   {
+  //     title: "Modern Living",
+  //     description: "Contemporary architectural design featuring biophilic aesthetics, high ceilings, and smart home amenities.",
+  //     icon: Sparkles,
+  //     color: "text-amber-600 bg-amber-50",
+  //   },
+  //   {
+  //     title: "Commercial Spaces",
+  //     description: "High-yield retail spaces, modern business hubs, and strategic land development opportunities.",
+  //     icon: Building,
+  //     color: "text-indigo-600 bg-indigo-50",
+  //   },
+  // ];
 
   return (
     <section id="about" className="py-20 lg:py-28 bg-white relative overflow-hidden">
@@ -142,7 +142,7 @@ export default function AboutSection() {
         </div>
 
         {/* 4 Value Pillars */}
-        <div className="mt-20 pt-12 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* <div className="mt-20 pt-12 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {valueCards.map((card, i) => {
             const Icon = card.icon;
             return (
@@ -167,7 +167,7 @@ export default function AboutSection() {
               </motion.div>
             );
           })}
-        </div>
+        </div> */}
 
       </div>
     </section>

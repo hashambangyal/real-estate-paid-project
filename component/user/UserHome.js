@@ -32,19 +32,20 @@ export default function UserHome() {
         <PropertiesSection />
 
         {/* 6. Why Choose Us: Skill Capability Bars & Quality Assurance */}
-        <WhyChooseUsSection />
+        {/* <WhyChooseUsSection /> */}
+        
+        {/* 8. Testimonials: Client Feedback with 5 Stars & Avatars */}
+        <TestimonialsSection />
 
         {/* 7. Call To Action Banner: Explore Properties */}
         <CtaBanner />
 
-        {/* 8. Testimonials: Client Feedback with 5 Stars & Avatars */}
-        <TestimonialsSection />
 
         {/* 9. Contact Section: Contact Cards & Inquiry Form (POST /api/inquiry) */}
         <ContactSection />
 
         {/* 10. Latest Insights: Real Estate & Construction Blog Cards */}
-        <BlogSection />
+        {/* <BlogSection /> */}
       </main>
 
       {/* 11. Footer: Newsletter Subscribe & Useful Links */}
