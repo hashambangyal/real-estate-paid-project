@@ -8,10 +8,10 @@ export default function HeroSection() {
   return (
     <section id="hero" className="relative w-full overflow-hidden bg-slate-950">
       {/* 
-        Continuous Extended House Background (Images 2, 3, 4)
+        Continuous Extended House Background
         Spans the entire hero from top to bottom
       */}
-      <div className="relative w-full min-h-[140vh] lg:min-h-[160vh] flex flex-col justify-between">
+      <div className="relative w-full min-h-[200vh] lg:min-h-[220vh] flex flex-col justify-between">
         
         {/* The House Picture */}
         <div className="absolute inset-0 w-full h-full">
@@ -28,34 +28,38 @@ export default function HeroSection() {
         </div>
 
         {/* ------------------------------------------------------------- */}
-        {/* TOP SEGMENT (Image 2): Giant Semi-Transparent "LUXURY HOME"   */}
+        {/* TOP SEGMENT: FIRST SCREEN / FOLD                              */}
+        {/* Full min-h-screen so the lower box is NOT visible on 1st page */}
         {/* ------------------------------------------------------------- */}
-        <div className="relative z-10 w-full pt-28 sm:pt-36 lg:pt-40 text-center select-none pointer-events-none px-4">
+        <div className="relative z-10 w-full min-h-screen flex flex-col items-center justify-center text-center select-none pointer-events-none px-4 pt-16">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="flex flex-col items-center justify-center leading-none"
           >
-            <span className="text-white/40 text-[64px] sm:text-[110px] md:text-[150px] lg:text-[180px] xl:text-[210px] font-light tracking-[0.06em] uppercase font-sans drop-shadow-sm">
+            {/* LUXURY - Bold / Thick */}
+            <span className="text-white/70 text-[50px] sm:text-[110px] md:text-[150px] lg:text-[180px] xl:text-[170px] font-medium tracking-[0.06em] uppercase font-sans drop-shadow-md">
               LUXURY
             </span>
-            <span className="text-white/35 text-[64px] sm:text-[110px] md:text-[150px] lg:text-[180px] xl:text-[210px] font-light tracking-[0.06em] uppercase font-sans -mt-4 sm:-mt-10 lg:-mt-16 drop-shadow-sm">
+
+            {/* HOME - Bold / Thick with distinct positive distance from LUXURY */}
+            <span className="text-white/40 text-[50px] sm:text-[110px] md:text-[150px] lg:text-[180px] xl:text-[170px] font-medium tracking-[0.06em] uppercase font-sans mt-3 sm:mt-6 lg:mt-8 drop-shadow-md">
               HOME
             </span>
           </motion.div>
         </div>
 
         {/* ------------------------------------------------------------- */}
-        {/* MIDDLE SEGMENT (Image 3): Floating 250+ Card (Left aligned)   */}
-        {/* NOTE: No luxury/commercial/apartment pills per user instruction */}
+        {/* MIDDLE SEGMENT: Floating 250+ Card (Left aligned)             */}
+        {/* Appears upon scrolling down below the first page/fold         */}
         {/* ------------------------------------------------------------- */}
-        <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-8 sm:py-12 my-auto">
+        <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-16 sm:py-24">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, delay: 0.2 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.7, delay: 0.1 }}
             className="max-w-[290px] sm:max-w-[320px] bg-white p-6 sm:p-7 rounded-3xl shadow-2xl border border-slate-100/90"
           >
             {/* Top row: 250+ & Circular Green Arrow Button */}
@@ -65,7 +69,7 @@ export default function HeroSection() {
               </span>
               <a
                 href="#properties"
-                className="w-10 h-10 rounded-full bg-[#3f5f50] hover:bg-[#324f42] text-white flex items-center justify-center transition-transform hover:scale-105 shadow-sm"
+                className="w-10 h-10 rounded-full bg-[#466555] hover:bg-[#324f42] text-white flex items-center justify-center transition-transform hover:scale-105 shadow-sm cursor-pointer"
                 aria-label="View sold properties"
               >
                 <ArrowUpRight className="w-5 h-5" />
@@ -77,7 +81,7 @@ export default function HeroSection() {
               Properties Successfully Sold Across Prime Locations
             </p>
 
-            {/* 3 Overlapping Avatar Circles (Matching Image 3) */}
+            {/* 3 Overlapping Avatar Circles */}
             <div className="flex items-center -space-x-2.5 pt-1">
               <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm bg-slate-100">
                 <Image
@@ -108,7 +112,7 @@ export default function HeroSection() {
         </div>
 
         {/* ------------------------------------------------------------- */}
-        {/* BOTTOM SEGMENT (Image 4): Headline + 2 Counter Cards           */}
+        {/* BOTTOM SEGMENT: Headline + 2 Counter Cards                    */}
         {/* House picture ends right here                                 */}
         {/* ------------------------------------------------------------- */}
         <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pb-16 sm:pb-20 lg:pb-24 pt-8">
@@ -142,7 +146,7 @@ export default function HeroSection() {
                 <span className="text-xs sm:text-sm text-slate-600 font-medium">
                   Properties Sold
                 </span>
-                <span className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#3f5f50] mt-1 sm:mt-2 tracking-tight">
+                <span className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#466555] mt-1 sm:mt-2 tracking-tight">
                   500+
                 </span>
               </div>
@@ -152,7 +156,7 @@ export default function HeroSection() {
                 <span className="text-xs sm:text-sm text-slate-600 font-medium">
                   Client Satisfaction
                 </span>
-                <span className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#3f5f50] mt-1 sm:mt-2 tracking-tight">
+                <span className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#466555] mt-1 sm:mt-2 tracking-tight">
                   98%
                 </span>
               </div>
@@ -162,7 +166,6 @@ export default function HeroSection() {
         </div>
 
       </div>
-      {/* House picture ends cleanly here */}
     </section>
   );
 }

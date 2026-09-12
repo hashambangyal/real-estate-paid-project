@@ -127,7 +127,7 @@ export default function Footer() {
               </a>
 
               {/* LinkedIn */}
-              <a
+              {/* <a
                 href="https://www.linkedin.com/in/hashambangyal"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -135,7 +135,7 @@ export default function Footer() {
                 aria-label="LinkedIn"
               >
                 <LinkedinIcon className="w-4 h-4" />
-              </a>
+              </a> */}
             </div>
           </div>
 
