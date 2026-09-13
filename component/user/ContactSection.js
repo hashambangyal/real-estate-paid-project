@@ -1,15 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Phone, Mail, MapPin, Send, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 
 export default function ContactSection() {
   const [formData, setFormData] = useState({
     name: "",
-    email: "",
     phone: "",
-    subject: "",
+    email: "",
     message: "",
   });
 
@@ -41,10 +40,6 @@ export default function ContactSection() {
     }
 
     try {
-      const fullMessage = formData.subject
-        ? `[Subject: ${formData.subject.trim()}]\n\n${formData.message.trim()}`
-        : formData.message.trim();
-
       const res = await fetch("/api/inquiry", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -52,7 +47,7 @@ export default function ContactSection() {
           name: formData.name.trim(),
           email: formData.email.trim(),
           phone: formData.phone.trim() || undefined,
-          message: fullMessage,
+          message: formData.message.trim(),
         }),
       });
 
@@ -62,7 +57,7 @@ export default function ContactSection() {
       }
 
       setStatus({ loading: false, success: true, error: null });
-      setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
+      setFormData({ name: "", phone: "", email: "", message: "" });
       setTimeout(() => setStatus((p) => ({ ...p, success: false })), 6000);
     } catch (err) {
       setStatus({ loading: false, success: false, error: err.message });
@@ -70,221 +65,168 @@ export default function ContactSection() {
   };
 
   return (
-    <section id="contact" className="py-20 lg:py-28 bg-[#f8fafc] relative overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
-          
-          {/* Left Column: Direct Contact Details */}
+    <section id="contact" className="w-full bg-white py-12 sm:py-16 lg:py-20 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
+<div className="flex flex-col lg:flex-row items-start justify-between gap-10 lg:gap-14">          
+          {/* Left Column: 4 Vertical Grey Dots + Heading + Subtitle */}
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
+            initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="lg:col-span-5 space-y-8"
-          >
-            <div>
-              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[#3f5f50] text-xs font-bold tracking-wider uppercase mb-3">
-                Get In Touch
-              </div>
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
-                Let&apos;s Discuss Your Next Property Acquisition
+            transition={{ duration: 0.6 }}
+className="flex items-start gap-6 sm:gap-10 w-full lg:w-[320px] shrink-0 lg:pt-[65px]"        >
+            {/* 4 Vertical Dots */}
+            <div className="hidden sm:flex flex-col items-center gap-4 text-[#898989] select-none pt-2 shrink-0">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#898989]" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#898989]" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#898989]" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#898989]" />
+            </div>
+
+            {/* Header Text */}
+            <div className="pt-0">
+              <h2 className="text-2xl sm:text-[28px] lg:text-[30px] text-[#3b5048] leading-tight">
+                <span className="font-extrabold block">You&apos;re just a click</span>
+                <span className="font-normal block">away from</span>
+                <span className="font-normal block">contacting us!</span>
               </h2>
-              <p className="mt-3 text-slate-600 text-sm sm:text-base leading-relaxed">
-                Reach out to our certified real estate advisors for tailored consultations, property viewings, and market inquiries.
+
+              <p className="mt-5 text-[#898989] text-sm leading-relaxed max-w-[240px]">
+                Share your information and we will contact you as soon as possible.
               </p>
             </div>
-
-            {/* 3 Contact Info Cards */}
-            <div className="space-y-4">
-              <motion.div
-                whileHover={{ x: 4 }}
-                className="flex items-start gap-4 p-5 rounded-2xl bg-white border border-slate-100 shadow-sm hover:border-emerald-200 transition-all"
-              >
-                <div className="w-12 h-12 rounded-xl bg-emerald-50 text-[#3f5f50] flex items-center justify-center shrink-0">
-                  <Phone className="w-6 h-6" />
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Call us</h4>
-                  <a href="tel:+5219841541550" className="text-base font-bold text-slate-900 hover:text-[#3f5f50] transition-colors mt-0.5 block">
-                    +52 1 984 154 1550
-                  </a>
-                </div>
-              </motion.div>
-
-              <motion.div
-                whileHover={{ x: 4 }}
-                className="flex items-start gap-4 p-5 rounded-2xl bg-white border border-slate-100 shadow-sm hover:border-emerald-200 transition-all"
-              >
-                <div className="w-12 h-12 rounded-xl bg-emerald-50 text-[#3f5f50] flex items-center justify-center shrink-0">
-                  <Mail className="w-6 h-6" />
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Email Us</h4>
-                  <a href="mailto:info@inmobiliariahersu.com" className="text-base font-bold text-slate-900 hover:text-[#3f5f50] transition-colors mt-0.5 block">
-                    info@inmobiliariahersu.com
-                  </a>
-                </div>
-              </motion.div>
-
-              <motion.div
-                whileHover={{ x: 4 }}
-                className="flex items-start gap-4 p-5 rounded-2xl bg-white border border-slate-100 shadow-sm hover:border-emerald-200 transition-all"
-              >
-                <div className="w-12 h-12 rounded-xl bg-emerald-50 text-[#3f5f50] flex items-center justify-center shrink-0">
-                  <MapPin className="w-6 h-6" />
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Our Location</h4>
-                  <p className="text-sm font-semibold text-slate-900 mt-0.5">
-                    123 Business Street, Riviera Maya &amp; Berlin
-                  </p>
-                </div>
-              </motion.div>
-            </div>
           </motion.div>
 
-          {/* Right Column: Send Message Form */}
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="lg:col-span-7 bg-white p-8 sm:p-10 rounded-3xl shadow-xl border border-slate-100"
-          >
-            <h3 className="text-2xl font-extrabold text-slate-900 mb-2">
-              Send Message
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-500 mb-6">
-              Fill out the form below and one of our dedicated brokers will respond within 24 hours.
-            </p>
+          {/* Center Column: Minimal Form */}
+        <motion.div
+  initial={{ opacity: 0, y: 20 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  viewport={{ once: true }}
+  transition={{ duration: 0.6, delay: 0.1 }}
+  className="w-full lg:max-w-[420px] flex-1"
+>
+  <form onSubmit={handleSubmit} className="space-y-4">
 
-            {status.success && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-3 text-emerald-800 text-sm"
-              >
-                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-                <span>Thank you! Your message has been received. Our team will contact you promptly.</span>
-              </motion.div>
-            )}
+    {/* Name and Surname */}
+    <div>
+      <input
+        type="text"
+        name="name"
+        value={formData.name}
+        onChange={handleChange}
+        placeholder="Name and Surname"
+        required
+        className="w-full bg-transparent border-b-[3px] border-neutral-400 focus:border-[#3b5048] py-2 text-sm text-neutral-800 placeholder:text-neutral-400 focus:outline-none transition-colors"
+      />
+    </div>
 
-            {status.error && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 flex items-center gap-3 text-red-800 text-sm"
-              >
-                <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
-                <span>{status.error}</span>
-              </motion.div>
-            )}
+    {/* Phone */}
+    <div>
+      <input
+        type="tel"
+        name="phone"
+        value={formData.phone}
+        onChange={handleChange}
+        placeholder="Phone"
+        className="w-full bg-transparent border-b-[3px] border-neutral-400 focus:border-[#3b5048] py-2 text-sm text-neutral-800 placeholder:text-neutral-400 focus:outline-none transition-colors"
+      />
+    </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="Your Full Name"
-                    required
-                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#3f5f50] focus:outline-none text-sm transition-colors"
-                  />
-                </div>
+    {/* E-mail */}
+    <div>
+      <input
+        type="email"
+        name="email"
+        value={formData.email}
+        onChange={handleChange}
+        placeholder="E-mail"
+        required
+        className="w-full bg-transparent border-b-[3px] border-neutral-400 focus:border-[#3b5048] py-2 text-sm text-neutral-800 placeholder:text-neutral-400 focus:outline-none transition-colors"
+      />
+    </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="you@example.com"
-                    required
-                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#3f5f50] focus:outline-none text-sm transition-colors"
-                  />
-                </div>
-              </div>
+    {/* Message Box */}
+    <div>
+      <textarea
+        name="message"
+        rows={3}
+        value={formData.message}
+        onChange={handleChange}
+        placeholder="Message"
+        required
+        className="w-full bg-transparent border-0 border-b-[3px] border-neutral-400 focus:border-[#3b5048] p-2.5 text-sm text-neutral-800 placeholder:text-neutral-400 focus:outline-none transition-colors resize-none"
+      />
+    </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    placeholder="+1 (555) 000-0000"
-                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#3f5f50] focus:outline-none text-sm transition-colors"
-                  />
-                </div>
+    {/* Submission Feedback & Send Button */}
+    <div className="flex items-center justify-between pt-1">
+      <div className="text-xs">
+        {status.success && (
+          <span className="text-emerald-700 font-medium flex items-center gap-1.5">
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            Message sent successfully!
+          </span>
+        )}
 
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                    Subject
-                  </label>
-                  <input
-                    type="text"
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleChange}
-                    placeholder="Property Inquiry / Viewing"
-                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#3f5f50] focus:outline-none text-sm transition-colors"
-                  />
-                </div>
-              </div>
+        {status.error && (
+          <span className="text-red-600 font-medium flex items-center gap-1.5">
+            <AlertCircle className="w-3.5 h-3.5" />
+            {status.error}
+          </span>
+        )}
+      </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Message
-                </label>
-                <textarea
-                  name="message"
-                  rows={4}
-                  value={formData.message}
-                  onChange={handleChange}
-                  placeholder="Tell us what you are looking for..."
-                  required
-                  className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#3f5f50] focus:outline-none text-sm transition-colors resize-none"
-                />
-              </div>
+      <button
+        type="submit"
+        disabled={status.loading}
+        className="font-bold text-sm tracking-wide text-[#3b5048] hover:text-[#dd9130] transition-colors cursor-pointer py-1 px-1 flex items-center gap-2 disabled:opacity-50"
+      >
+        {status.loading && (
+          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+        )}
+        <span>Send</span>
+      </button>
+    </div>
 
-              <div>
-                <motion.button
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.99 }}
-                  type="submit"
-                  disabled={status.loading}
-                  className="w-full bg-[#3f5f50] hover:bg-[#324f42] text-white py-3.5 rounded-xl text-sm font-semibold tracking-wide transition-all shadow-md hover:shadow-emerald-900/20 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 cursor-pointer"
-                >
-                  {status.loading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin text-white" />
-                      <span>Sending Message...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4" />
-                      <span>Send Message</span>
-                    </>
-                  )}
-                </motion.button>
-              </div>
-            </form>
-          </motion.div>
+  </form>
+</motion.div>
+
+          {/* Right Column: Personalized attention & Hours */}
+         <motion.div
+  initial={{ opacity: 0, x: 20 }}
+  whileInView={{ opacity: 1, x: 0 }}
+  viewport={{ once: true }}
+  transition={{ duration: 0.6, delay: 0.2 }}
+  className="w-full lg:w-[240px] shrink-0 lg:pt-[65px]"
+>
+  <h3 className="text-base sm:text-lg font-bold text-[#dd9130] leading-snug">
+    Personalized<br />
+    attention for each<br />
+    project.
+  </h3>
+
+  <div className="mt-5 space-y-3.5 text-sm">
+    <div>
+      <p className="font-bold text-black/60 font-extrabold leading-snug">
+        Monday - Saturday:
+      </p>
+      <p className="text-neutral-500 leading-snug">
+        10am - 6pm
+      </p>
+    </div>
+
+    <div>
+      <p className="font-bold text-black/60 font-extrabold leading-snug">
+        Sundays:
+      </p>
+      <p className="text-neutral-500 leading-snug">
+        11am - 4pm
+      </p>
+    </div>
+  </div>
+</motion.div>
 
         </div>
-
       </div>
     </section>
   );

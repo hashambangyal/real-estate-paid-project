@@ -125,12 +125,7 @@ export default function TestimonialsSection() {
             </p>
 
             <div className="flex items-center gap-4 flex-wrap">
-              <a
-                href="#contact"
-                className="bg-[#466555] hover:bg-[#395346] text-white px-7 py-3 rounded-full text-sm font-semibold tracking-wide shadow-md active:scale-95 transition-all inline-block"
-              >
-                View All Review
-              </a>
+             
 
               {/* Slider Prev/Next Arrow Buttons (1-by-1 sliding) */}
               <div className="flex items-center gap-2">

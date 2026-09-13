@@ -3,8 +3,55 @@
 import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 import { motion } from "framer-motion";
+import { useEffect, useState, useRef } from "react";
 
 export default function HeroSection() {
+  const [soldCount, setSoldCount] = useState(0);
+const [satisfactionCount, setSatisfactionCount] = useState(0);
+
+const statsRef = useRef(null);
+
+  useEffect(() => {
+  const element = statsRef.current;
+
+  if (!element) return;
+
+  const observer = new IntersectionObserver(
+    ([entry]) => {
+      if (entry.isIntersecting) {
+        const duration = 2000;
+        const startTime = performance.now();
+
+        const animate = (currentTime) => {
+          const progress = Math.min(
+            (currentTime - startTime) / duration,
+            1
+          );
+
+          setSoldCount(Math.floor(progress * 500));
+          setSatisfactionCount(Math.floor(progress * 98));
+
+          if (progress < 1) {
+            requestAnimationFrame(animate);
+          }
+        };
+
+        requestAnimationFrame(animate);
+
+        // Ek baar animation hone ke baad observer ko hata do
+        observer.disconnect();
+      }
+    },
+    {
+      threshold: 0.3,
+    }
+  );
+
+  observer.observe(element);
+
+  return () => observer.disconnect();
+}, []);
+
   return (
     <section id="hero" className="relative w-full overflow-hidden bg-slate-950">
       {/* 
@@ -12,7 +59,6 @@ export default function HeroSection() {
         Spans the entire hero from top to bottom
       */}
       <div className="relative w-full min-h-[200vh] lg:min-h-[220vh] flex flex-col justify-between">
-        
         {/* The House Picture */}
         <div className="absolute inset-0 w-full h-full">
           <Image
@@ -117,7 +163,6 @@ export default function HeroSection() {
         {/* ------------------------------------------------------------- */}
         <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pb-16 sm:pb-20 lg:pb-24 pt-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-end">
-            
             {/* Left Column: Big Bold Headline on House Picture */}
             <motion.div
               initial={{ opacity: 0, y: 25 }}
@@ -135,6 +180,7 @@ export default function HeroSection() {
 
             {/* Right Column: 2 Stat Cards (Properties Sold 500+ & Client Satisfaction 98%) */}
             <motion.div
+              ref={statsRef}
               initial={{ opacity: 0, y: 25 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -146,25 +192,25 @@ export default function HeroSection() {
                 <span className="text-xs sm:text-sm text-slate-600 font-medium">
                   Properties Sold + Rent
                 </span>
+
                 <span className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#466555] mt-1 sm:mt-2 tracking-tight">
-                  500+
+                  {soldCount}+
                 </span>
               </div>
 
-              {/* Card 2: Client Satisfaction 98% */}
+              {/* Card 2: Client Satisfaction */}
               <div className="bg-white/95 backdrop-blur-md p-5 sm:p-7 rounded-3xl shadow-xl border border-white/40 flex flex-col justify-center">
                 <span className="text-xs sm:text-sm text-slate-600 font-medium">
                   Client Satisfaction
                 </span>
+
                 <span className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#466555] mt-1 sm:mt-2 tracking-tight">
-                  98%
+                  {satisfactionCount}%
                 </span>
               </div>
             </motion.div>
-
           </div>
         </div>
-
       </div>
     </section>
   );

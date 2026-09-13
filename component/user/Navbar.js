@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -20,6 +21,23 @@ export default function Navbar() {
   const pagesRef = useRef(null);
   const propsRef = useRef(null);
   const blogRef = useRef(null);
+
+  const pathname = usePathname();
+  const isContactPage = pathname === "/contact_us";
+
+  const scrollToSection = (e, id) => {
+    if (e && e.preventDefault) e.preventDefault();
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const handleNavClick = (e, id) => {
+    if (pathname === "/") {
+      scrollToSection(e, id);
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -84,13 +102,23 @@ export default function Navbar() {
 
           {/* Center: Desktop Navigation Links (Refined, Thinner Font Weight) */}
           <nav className="hidden lg:flex items-center space-x-7 xl:space-x-9 text-[14.5px] font-normal tracking-normal text-slate-600">
-            {/* Home - Sage Green active state */}
-            <a
-              href="#hero"
-              className="text-[#466555] font-normal hover:text-[#324f42] transition-colors py-1"
+            {/* Home */}
+            <Link
+              href="/"
+              onClick={(e) => {
+                if (pathname === "/") {
+                  e.preventDefault();
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }
+              }}
+              className={
+                !isContactPage
+                  ? "text-[#466555] font-semibold hover:text-[#324f42] transition-colors py-1 cursor-pointer"
+                  : "text-slate-600 font-normal hover:text-slate-900 transition-colors py-1 cursor-pointer"
+              }
             >
               Home
-            </a>
+            </Link>
 
             {/* Pages Dropdown */}
             <div
@@ -123,29 +151,41 @@ export default function Navbar() {
                     className="absolute top-[calc(100%+12px)] left-0 w-48 bg-white border border-slate-100 rounded-2xl shadow-xl py-2 px-1 z-50"
                   >
                     <a
-                      href="#about"
-                      onClick={() => setPagesDropdown(false)}
+                      href="/#about"
+                      onClick={(e) => {
+                        setPagesDropdown(false);
+                        handleNavClick(e, "about");
+                      }}
                       className="block px-3.5 py-2 text-xs font-normal text-slate-600 hover:text-[#466555] hover:bg-emerald-50/50 rounded-xl transition-colors"
                     >
                       About Us
                     </a>
                     <a
-                      href="#services"
-                      onClick={() => setPagesDropdown(false)}
+                      href="/#services"
+                      onClick={(e) => {
+                        setPagesDropdown(false);
+                        handleNavClick(e, "services");
+                      }}
                       className="block px-3.5 py-2 text-xs font-normal text-slate-600 hover:text-[#466555] hover:bg-emerald-50/50 rounded-xl transition-colors"
                     >
                       Services
                     </a>
                     <a
-                      href="#why-us"
-                      onClick={() => setPagesDropdown(false)}
+                      href="/#why-us"
+                      onClick={(e) => {
+                        setPagesDropdown(false);
+                        handleNavClick(e, "why-us");
+                      }}
                       className="block px-3.5 py-2 text-xs font-normal text-slate-600 hover:text-[#466555] hover:bg-emerald-50/50 rounded-xl transition-colors"
                     >
                       Why Choose Us
                     </a>
                     <a
-                      href="#testimonials"
-                      onClick={() => setPagesDropdown(false)}
+                      href="/#testimonials"
+                      onClick={(e) => {
+                        setPagesDropdown(false);
+                        handleNavClick(e, "testimonials");
+                      }}
                       className="block px-3.5 py-2 text-xs font-normal text-slate-600 hover:text-[#466555] hover:bg-emerald-50/50 rounded-xl transition-colors"
                     >
                       Testimonials
@@ -218,74 +258,44 @@ export default function Navbar() {
               </AnimatePresence>
             </div>
 
-            {/* Blog Dropdown */}
-            <div
-              ref={blogRef}
-              className="relative"
-              onMouseEnter={() => setBlogDropdown(true)}
-              onMouseLeave={() => setBlogDropdown(false)}
+            {/* about us */}
+             <Link
+              href="/about_us"
+              className={
+                isContactPage
+                  ? "text-[#466555] font-semibold hover:text-[#324f42] transition-colors py-1 cursor-pointer"
+                  : "text-slate-600 font-normal hover:text-slate-900 transition-colors py-1 cursor-pointer"
+              }
             >
-              <button
-                onClick={() => setBlogDropdown(!blogDropdown)}
-                className="flex items-center gap-1.5 hover:text-slate-900 transition-colors py-1 focus:outline-none cursor-pointer"
-              >
-                <span>Blog</span>
-                <ChevronDown
-                  className={`w-3.5 h-3.5 stroke-[1.5] transition-transform duration-200 ${
-                    blogDropdown
-                      ? "rotate-180 text-[#466555]"
-                      : "text-slate-400"
-                  }`}
-                />
-              </button>
-
-              <AnimatePresence>
-                {blogDropdown && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 8 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute top-[calc(100%+12px)] left-0 w-48 bg-white border border-slate-100 rounded-2xl shadow-xl py-2 px-1 z-50"
-                  >
-                    <a
-                      href="#blog"
-                      onClick={() => setBlogDropdown(false)}
-                      className="block px-3.5 py-2 text-xs font-normal text-slate-600 hover:text-[#466555] hover:bg-emerald-50/50 rounded-xl transition-colors"
-                    >
-                      Latest Insights
-                    </a>
-                    <a
-                      href="#blog"
-                      onClick={() => setBlogDropdown(false)}
-                      className="block px-3.5 py-2 text-xs font-normal text-slate-600 hover:text-[#466555] hover:bg-emerald-50/50 rounded-xl transition-colors"
-                    >
-                      Home Buying Tips
-                    </a>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+               About Us
+            </Link>
 
             {/* Contact Us */}
-            <a
-              href="#contact"
-              className="hover:text-slate-900 transition-colors py-1"
+            <Link
+              href="/contact_us"
+              className={
+                isContactPage
+                  ? "text-[#466555] font-semibold hover:text-[#324f42] transition-colors py-1 cursor-pointer"
+                  : "text-slate-600 font-normal hover:text-slate-900 transition-colors py-1 cursor-pointer"
+              }
             >
               Contact Us
-            </a>
+            </Link>
           </nav>
 
           {/* Right: Oval Pill "Contact Now" Button */}
           <div className="hidden lg:flex items-center">
-            <motion.a
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              href="#contact"
+            <a
+              href="/#contact"
+              onClick={(e) => {
+                if (pathname === "/") {
+                  scrollToSection(e, "contact");
+                }
+              }}
               className="bg-[#466555] hover:bg-[#395346] text-white px-8 py-3 rounded-full text-[14px] font-normal tracking-wide shadow-md hover:shadow-emerald-900/20 transition-all flex items-center justify-center cursor-pointer"
             >
               Contact Now
-            </motion.a>
+            </a>
           </div>
 
           {/* Mobile Menu Button */}
@@ -315,13 +325,19 @@ export default function Navbar() {
               className="mt-3 bg-white rounded-3xl shadow-2xl border border-slate-100 p-6 space-y-4 lg:hidden max-h-[85vh] overflow-y-auto"
             >
               <nav className="flex flex-col space-y-2 text-sm font-normal text-slate-700">
-                <a
-                  href="#hero"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="px-4 py-2.5 rounded-xl hover:bg-emerald-50 text-[#466555]"
+                <Link
+                  href="/"
+                  onClick={(e) => {
+                    setMobileMenuOpen(false);
+                    if (window.location.pathname === "/") {
+                      e.preventDefault();
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }
+                  }}
+                  className="px-4 py-2.5 rounded-xl hover:bg-emerald-50 text-[#466555] cursor-pointer"
                 >
                   Home
-                </a>
+                </Link>
 
                 {/* Mobile Pages Accordion */}
                 <div>
@@ -417,53 +433,42 @@ export default function Navbar() {
                   )}
                 </div>
 
-                {/* Mobile Blog Accordion */}
-                <div>
-                  <button
-                    onClick={() => setMobileBlogOpen(!mobileBlogOpen)}
-                    className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl hover:bg-slate-50 text-slate-700 font-normal"
-                  >
-                    <span>Blog</span>
-                    <ChevronDown
-                      className={`w-4 h-4 transition-transform duration-200 ${
-                        mobileBlogOpen ? "rotate-180 text-[#466555]" : ""
-                      }`}
-                    />
-                  </button>
-                  {mobileBlogOpen && (
-                    <div className="pl-6 py-1 space-y-1 text-xs text-slate-500 font-normal">
-                      <a
-                        href="#blog"
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="block py-2 px-3 hover:text-[#466555] rounded-lg"
-                      >
-                        Latest Insights
-                      </a>
-                      <a
-                        href="#blog"
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="block py-2 px-3 hover:text-[#466555] rounded-lg"
-                      >
-                        Home Buying Tips
-                      </a>
-                    </div>
-                  )}
-                </div>
-
-                <a
-                  href="#contact"
+                {/* Mobile about us   */}
+               <Link
+                  href="/about_us"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="px-4 py-2.5 rounded-xl hover:bg-slate-50 text-slate-700 font-normal"
+                  className={`px-4 py-2.5 rounded-xl font-normal cursor-pointer transition-colors ${
+                    isContactPage
+                      ? "bg-emerald-50 text-[#466555] font-semibold"
+                      : "text-slate-700 hover:bg-slate-50"
+                  }`}
+                >
+                  About Us
+                </Link>
+
+                <Link
+                  href="/contact_us"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`px-4 py-2.5 rounded-xl font-normal cursor-pointer transition-colors ${
+                    isContactPage
+                      ? "bg-emerald-50 text-[#466555] font-semibold"
+                      : "text-slate-700 hover:bg-slate-50"
+                  }`}
                 >
                   Contact Us
-                </a>
+                </Link>
               </nav>
 
               <div className="pt-2">
                 <a
-                  href="#contact"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-full bg-[#466555] text-white py-3 rounded-full text-center text-sm font-normal block shadow-md"
+                  href="/#contact"
+                  onClick={(e) => {
+                    setMobileMenuOpen(false);
+                    if (pathname === "/") {
+                      scrollToSection(e, "contact");
+                    }
+                  }}
+                  className="w-full bg-[#466555] text-white py-3 rounded-full text-center text-sm font-normal block shadow-md cursor-pointer"
                 >
                   Contact Now
                 </a>

@@ -1,113 +1,205 @@
 "use client";
 
-import { Home, TrendingUp, HandCoins, Building2, ArrowUpRight } from "lucide-react";
+import Image from "next/image";
+import { Home, HandCoins, TrendingUp, Building2, ArrowUpRight } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function ServicesSection() {
-  const services = [
-    {
-      num: "01",
-      title: "Property Buying Assistance",
-      description:
-        "We guide you through every step of the home-buying journey, from identifying the right property to negotiating the best price and ensuring clean title deeds.",
-      icon: Home,
-    },
-    {
-      num: "02",
-      title: "Property Selling Services",
-      description:
-        "Selling a property requires the right pricing strategy and strong market exposure. We help you position your property competitively to close top dollar.",
-      icon: HandCoins,
-    },
-    {
-      num: "03",
-      title: "Real Estate Investment Consulting",
-      description:
-        "Real estate is one of the most powerful wealth-building tools when guided correctly. We provide strategic investment advice based on current market trends and yields.",
-      icon: TrendingUp,
-    },
-    {
-      num: "04",
-      title: "Commercial Property Solutions",
-      description:
-        "We offer premium office spaces, retail outlets, and commercial developments in strategic business locations primed for rapid enterprise expansion.",
-      icon: Building2,
-    },
-  ];
-
   return (
-    <section id="services" className="py-20 lg:py-28 bg-[#f8fafc] relative overflow-hidden">
+    <section id="services" className="py-20 lg:py-28 bg-white relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
-        {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center max-w-2xl mx-auto mb-16"
-        >
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[#3f5f50] text-xs font-bold tracking-wider uppercase mb-3">
-            Explore Our Services
-          </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
-            Experience Trusted Real Solutions
-          </h2>
-          <p className="mt-3 text-slate-600 text-sm sm:text-base font-normal">
-            Comprehensive real estate and asset advisory crafted to protect your capital and maximize long-term equity growth.
-          </p>
-        </motion.div>
+        {/* Section Header: Left Badge & Headline, Right Paragraph (NOT Centered) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-end mb-14">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="lg:col-span-7 space-y-3"
+          >
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200 text-slate-800 text-xs font-semibold shadow-sm">
+              <Building2 className="w-3.5 h-3.5 text-slate-700" />
+              <span>Explore Our Services</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
+              Experience Trusted <br className="hidden sm:inline" />
+              Real Solutions
+            </h2>
+          </motion.div>
 
-        {/* 4 Numbered Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {services.map((srv, idx) => {
-            const Icon = srv.icon;
-            return (
-              <motion.div
-                key={srv.num}
-                initial={{ opacity: 0, y: 25 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: idx * 0.1 }}
-                whileHover={{ y: -8 }}
-                className="bg-white rounded-3xl p-7 sm:p-8 border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group relative overflow-hidden"
-              >
-                {/* Subtle top indicator bar */}
-                <div className="absolute top-0 left-0 right-0 h-1 bg-transparent group-hover:bg-[#3f5f50] transition-colors" />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="lg:col-span-5 lg:pl-4"
+          >
+            <p className="text-slate-600 text-sm sm:text-base leading-relaxed font-normal">
+              Comprehensive real estate and asset advisory crafted to protect your capital and maximize long-term equity growth across prime residential, coastal, and commercial spaces.
+            </p>
+          </motion.div>
+        </div>
 
-                <div>
-                  {/* Number Badge & Icon */}
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-[#3f5f50] flex items-center justify-center group-hover:bg-[#3f5f50] group-hover:text-white transition-colors">
-                      <Icon className="w-6 h-6" />
-                    </div>
-                    <span className="text-2xl sm:text-3xl font-extrabold text-slate-200 group-hover:text-emerald-200 transition-colors font-mono">
-                      {srv.num}
-                    </span>
-                  </div>
+        {/* 
+          4 Service Cards Matching Uploaded Reference (media_1789227553241.png)
+          Card 1 (Black): Buying Assistance with Villa image & Home icon
+          Card 2 (Sage Green): Selling Services with HandCoins icon & 02
+          Card 3 (Black): Investment Consulting with Skyline image & TrendingUp icon
+          Card 4 (Sage Green): Commercial Solutions with Building2 icon & 04
+        */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+          
+          {/* CARD 1: Black Card - Property Buying Assistance */}
+          <motion.div
+            initial={{ opacity: 0, y: 25 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0 }}
+            whileHover={{ y: -6 }}
+            className="bg-[#0f1117] rounded-[28px] p-6 sm:p-7 flex flex-col justify-between min-h-[460px] shadow-lg border border-slate-800/90 transition-all duration-300 group"
+          >
+            <div>
+              {/* Top: Agent Showing House Image */}
+              <div className="relative aspect-16/10 w-full rounded-2xl overflow-hidden bg-slate-900 mb-5">
+                <Image
+                  src="/images/realtyflow/service-buying.jpg"
+                  alt="Property Buying Assistance"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                />
+              </div>
 
-                  {/* Title & Description */}
-                  <h3 className="text-lg font-bold text-slate-900 mb-3 group-hover:text-[#3f5f50] transition-colors">
-                    {srv.title}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-slate-500 leading-relaxed font-normal">
-                    {srv.description}
-                  </p>
+              {/* Icon Badge */}
+              <div className="w-11 h-11 rounded-2xl bg-[#506e61]/25 border border-[#506e61]/40 text-[#a5c2b4] flex items-center justify-center mb-4 shadow-sm">
+                <Home className="w-5 h-5" />
+              </div>
+
+              {/* Title & Description */}
+              <h3 className="text-xl font-bold text-white tracking-tight leading-snug">
+                Property Buying Assistance
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-300 font-light mt-3 leading-relaxed">
+                We guide you through every step of the home-buying journey, from identifying the right property to negotiating the best price and ensuring clean title deeds.
+              </p>
+            </div>
+
+            {/* Bottom Arrow ↗ */}
+            <div className="pt-6">
+              <ArrowUpRight className="w-5 h-5 text-white/70 group-hover:text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+            </div>
+          </motion.div>
+
+          {/* CARD 2: Sage Green Card - Property Selling Services */}
+          <motion.div
+            initial={{ opacity: 0, y: 25 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            whileHover={{ y: -6 }}
+className="bg-[#506e61] rounded-[28px] p-6 sm:p-7 flex flex-col justify-between h-[390px] self-center shadow-lg transition-all duration-300 text-white group"          >
+            <div>
+              {/* Top Row: Icon Badge & Big 02 */}
+              <div className="flex items-center justify-between mb-8">
+                <div className="w-12 h-12 rounded-2xl bg-white/15 border border-white/20 text-white flex items-center justify-center shadow-sm">
+                  <HandCoins className="w-6 h-6" />
                 </div>
+                <span className="text-4xl sm:text-5xl font-extrabold text-white/30 font-sans tracking-tight select-none">
+                  02
+                </span>
+              </div>
 
-                {/* Footer Link */}
-                <div className="pt-6 mt-6 border-t border-slate-100 flex items-center justify-between">
-                  <a
-                    href="#contact"
-                    className="text-xs font-bold text-slate-700 group-hover:text-[#3f5f50] transition-colors flex items-center gap-1"
-                  >
-                    <span>Learn More</span>
-                    <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                  </a>
+              {/* Title & Description */}
+              <h3 className="text-xl font-bold text-white tracking-tight leading-snug">
+                Property Selling Services
+              </h3>
+              <p className="text-xs sm:text-sm text-white/85 font-light mt-3 leading-relaxed">
+                Selling a property requires the right pricing strategy and strong market exposure. We help you position your property competitively to close top dollar.
+              </p>
+            </div>
+
+            {/* Bottom Arrow ↗ */}
+            <div className="pt-6">
+              <ArrowUpRight className="w-5 h-5 text-white/70 group-hover:text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+            </div>
+          </motion.div>
+
+          {/* CARD 3: Black Card - Real Estate Investment Consulting */}
+          <motion.div
+            initial={{ opacity: 0, y: 25 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            whileHover={{ y: -6 }}
+            className="bg-[#0f1117] rounded-[28px] p-6 sm:p-7 flex flex-col justify-between min-h-[460px] shadow-lg border border-slate-800/90 transition-all duration-300 group"
+          >
+            <div>
+              {/* Top: Waterfront Skyline Image */}
+              <div className="relative aspect-16/10 w-full rounded-2xl overflow-hidden bg-slate-900 mb-5">
+                <Image
+                  src="/images/realtyflow/service-investment.jpg"
+                  alt="Real Estate Investment Consulting"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                />
+              </div>
+
+              {/* Icon Badge */}
+              <div className="w-11 h-11 rounded-2xl bg-[#506e61]/25 border border-[#506e61]/40 text-[#a5c2b4] flex items-center justify-center mb-4 shadow-sm">
+                <TrendingUp className="w-5 h-5" />
+              </div>
+
+              {/* Title & Description */}
+              <h3 className="text-xl font-bold text-white tracking-tight leading-snug">
+                Real Estate Investment Consulting
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-300 font-light mt-3 leading-relaxed">
+                Real estate is one of the most powerful wealth-building tools when guided correctly. We provide strategic investment advice based on current market trends and yields.
+              </p>
+            </div>
+
+            {/* Bottom Arrow ↗ */}
+            <div className="pt-6">
+              <ArrowUpRight className="w-5 h-5 text-white/70 group-hover:text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+            </div>
+          </motion.div>
+
+          {/* CARD 4: Sage Green Card - Commercial Property Solutions */}
+          <motion.div
+            initial={{ opacity: 0, y: 25 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            whileHover={{ y: -6 }}
+className="bg-[#506e61] rounded-[28px] p-6 sm:p-7 flex flex-col justify-between h-[390px] self-center shadow-lg transition-all duration-300 text-white group"          >
+            <div>
+              {/* Top Row: Icon Badge & Big 04 */}
+              <div className="flex items-center justify-between mb-8">
+                <div className="w-12 h-12 rounded-2xl bg-white/15 border border-white/20 text-white flex items-center justify-center shadow-sm">
+                  <Building2 className="w-6 h-6" />
                 </div>
-              </motion.div>
-            );
-          })}
+                <span className="text-4xl sm:text-5xl font-extrabold text-white/30 font-sans tracking-tight select-none">
+                  04
+                </span>
+              </div>
+
+              {/* Title & Description */}
+              <h3 className="text-xl font-bold text-white tracking-tight leading-snug">
+                Commercial Property Solutions
+              </h3>
+              <p className="text-xs sm:text-sm text-white/85 font-light mt-3 leading-relaxed">
+                We offer premium office spaces, retail outlets, and commercial developments in strategic business locations primed for rapid enterprise expansion.
+              </p>
+            </div>
+
+            {/* Bottom Arrow ↗ */}
+            <div className="pt-6">
+              <ArrowUpRight className="w-5 h-5 text-white/70 group-hover:text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+            </div>
+          </motion.div>
+
         </div>
 
       </div>
